@@ -1,3 +1,8 @@
+#' @name diagnostic_plots
+#' @aliases lin_plot
+#' @aliases var_plot
+#' @aliases norm_qq
+#' @aliases norm_hist
 #' @title Draw diagnostic parades
 #'
 #' @description These are short-hand functions to quickly draw
@@ -42,8 +47,8 @@
 #' norm_hist(my_parade, bins = 10)
 #' reveal(my_parade)
 
-#' @export
 #' @rdname diagnostic_plot
+#' @export
 lin_plot <- function(parade) {
   
   # The parade needs to be a raw data parade.
@@ -71,8 +76,8 @@ lin_plot <- function(parade) {
   print(p)
 }
 
-#' @export
 #' @rdname diagnostic_plot
+#' @export
 var_plot <- function(parade) {
   
   # The parade needs to be either a raw data or a summary data parade.
@@ -112,8 +117,8 @@ var_plot <- function(parade) {
   print(p)
 }
 
-#' @export
 #' @rdname diagnostic_plot
+#' @export
 norm_qq <- function(parade) {
   
   # The parade needs to be a raw data parade.
@@ -140,6 +145,7 @@ norm_qq <- function(parade) {
 }
 
 #' @rdname diagnostic_plot
+#' @export
 norm_hist <- function(parade, bins = 30) {
   
   # The parade needs to be a raw data parade.

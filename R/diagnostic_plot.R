@@ -42,6 +42,7 @@
 #' norm_hist(my_parade, bins = 10)
 #' reveal(my_parade)
 
+#' @export
 #' @rdname diagnostic_plot
 lin_plot <- function(parade) {
   
@@ -70,6 +71,7 @@ lin_plot <- function(parade) {
   print(p)
 }
 
+#' @export
 #' @rdname diagnostic_plot
 var_plot <- function(parade) {
   
@@ -110,6 +112,7 @@ var_plot <- function(parade) {
   print(p)
 }
 
+#' @export
 #' @rdname diagnostic_plot
 norm_qq <- function(parade) {
   

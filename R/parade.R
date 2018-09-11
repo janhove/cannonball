@@ -152,7 +152,7 @@ parade <- function(model, full_data = NULL) {
   
   # Specify that this parade contains the raw data, not summaries
   attr(df, "data_type") <- "raw"
-  
+   
   # Output the parade
   return(df)
 }

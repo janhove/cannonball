@@ -8,7 +8,9 @@ parade(model, full_data = NULL)
 }
 \arguments{
 \item{model}{The name of the statistical model you want to diagnose.
-Currently only lm() and gam() (from the `mgcv` package) models are supported.}
+Currently only lm(), gam() (from the `mgcv` package) and lmer() (from the `lme4` package) models are supported.
+For the lmer() models, only residual diagnostics are supported; support for BLUP ('random effects') diagnostics
+is still lacking.}
 
 \item{full_data}{By default, the output will only include variables that are part of the model.
 If you want to include all the variables that are present in the dataframe

@@ -8,7 +8,9 @@
 #' for the simulated data. The 'tibble' (dataframe) created by this can be used to draw
 #' 20 panels of diagnostic plots (see examples).
 #' @param model The name of the statistical model you want to diagnose.
-#'              Currently only lm() and gam() (from the `mgcv` package) models are supported.
+#'              Currently only lm(), gam() (from the `mgcv` package) and lmer() (from the `lme4` package) models are supported.
+#'              For the lmer() models, only residual diagnostics are supported; support for BLUP ('random effects') diagnostics
+#'              is still lacking.
 #' @param full_data By default, the output will only include variables that are part of the model.
 #'                  If you want to include all the variables that are present in the dataframe
 #'                  on which the model was fitted, supply this dataframe's name to full_data.
@@ -38,8 +40,8 @@
 parade <- function(model, full_data = NULL) {
   
   # Throw error for unsupported models. Support for lmer() would be nice.
-  if (!(class(model)[1] %in% c("lm", "gam"))) {
-    stop(paste0("This function currently only works with lm() and gam() models. ",
+  if (!(class(model)[1] %in% c("lm", "gam", "lmerMod"))) {
+    stop(paste0("This function currently only works with lm(), gam() and lmer() models. ",
                 "The class of the model you tried to fit was ",
                 class(model), "."))
   }
@@ -59,7 +61,7 @@ parade <- function(model, full_data = NULL) {
   outcome_var <- colnames(df)[1]
   
   # Simulate 19 vectors of outcome data from the model
-  simulated_data <- data.frame(simulate(model, n = 19))
+  simulated_data <- data.frame(simulate(model, nsim = 19))
   
   # Check if full_data was specified, and if so, if it was correctly specified.
   if (is.null(full_data)) {
@@ -114,19 +116,49 @@ parade <- function(model, full_data = NULL) {
   # Refit the model to each vector of simulated and true outcomes.
   # For more complex models, it may save some time to not refit the
   # last model, but I'll leave that to someone with 1337 R skillz.
-  df <- df %>%
-    group_by(..sample) %>%
-    # Refit the original model to each sample (using update()),
-    # output the fitted and residual values (using augment()),
-    # and retain dfs variables (using data = .):
-    do(broom::augment(update(model, data = .), data = .)) %>%
-    # Add transformed residuals
-    mutate(.abs_resid = abs(.resid)) %>%
-    mutate(.sqrt_abs_resid = sqrt(abs(.resid))) %>%
-    # augment() outputs some additional info;
-    # only retain variables, fitted values and residuals here
-    select("..sample", var_names, ".fitted", ".resid", ".abs_resid", ".sqrt_abs_resid") %>%
-    ungroup()
+  if (class(model)[1] %in% c("lm", "gam")) {
+    df <- df %>%
+      group_by(..sample) %>%
+      # Refit the original model to each sample (using update()),
+      # output the fitted and residual values (using augment()),
+      # and retain dfs variables (using data = .):
+      do(broom::augment(update(model, data = .), data = .)) %>%
+      # Add transformed residuals
+      mutate(.abs_resid = abs(.resid)) %>%
+      mutate(.sqrt_abs_resid = sqrt(abs(.resid))) %>%
+      # augment() outputs some additional info;
+      # only retain variables, fitted values and residuals here
+      select("..sample", var_names, ".fitted", ".resid", ".abs_resid", ".sqrt_abs_resid") %>%
+      ungroup()
+  } 
+  else if (class(model)[1] == "lmerMod") {
+    # Especially for lmer fits, the model won't always converge.
+    # The following function adds whether there was a convergence problem
+    # to the output.
+    augment_lmer <- function(model, data) {
+      model_refit <- update(model, data = data)
+      results <- broom::augment(model_refit, data = data)
+      results$convergence_error <- ifelse(is.null(model_refit@optinfo$conv$lme4$code), 0, 1)
+      return(results)
+    }
+    
+    # Only simulated datasets that didn't yield convergence errors are retained in the output.
+    df <- df %>%
+      group_by(..sample) %>%
+      # Refit the original model to each sample,
+      # output the fitted and residual values,
+      # and retain dfs variables:
+      do(augment_lmer(model, data = .)) %>%
+      # Remove simulated datasets for which there was a convergence error
+      filter(convergence_error == 0) %>% 
+      # Add transformed residuals
+      mutate(.abs_resid = abs(.resid)) %>%
+      mutate(.sqrt_abs_resid = sqrt(abs(.resid))) %>%
+      # augment() outputs some additional info;
+      # only retain variables, fitted values and residuals here
+      select("..sample", var_names, ".fitted", ".resid", ".abs_resid", ".sqrt_abs_resid") %>%
+      ungroup()
+  }
   
   # Generate a random number between 1 and 20. This will be
   # the position of the true data in the parade.
@@ -152,6 +184,17 @@ parade <- function(model, full_data = NULL) {
   
   # Specify that this parade contains the raw data, not summaries
   attr(df, "data_type") <- "raw"
+  
+  # Add information about the model class
+  attr(df, "model_class") <- class(model)[1]
+  
+  # Warning about convergence errors
+  unique_samples <- length(unique(df$.sample))
+  if (unique_samples < 20) {
+    warning(paste0("There were convergence errors for ",
+                   20 - unique_samples,
+                   " dataset(s). These datasets are not retained in the output."))
+  }
    
   # Output the parade
   return(df)

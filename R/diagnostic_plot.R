@@ -51,6 +51,10 @@
 #' @export
 lin_plot <- function(parade) {
   
+  if (is.null(attr(parade, "data_type"))) {
+  	stop("The object you supplied doesn't seem to be a parade.")
+  }
+  
   # The parade needs to be a raw data parade.
   if (!(attr(parade, "data_type") %in% c("raw"))) {
     stop("When diagnosing linearity, make sure the parade was generated using the parade() function.")
@@ -79,6 +83,10 @@ lin_plot <- function(parade) {
 #' @rdname diagnostic_plot
 #' @export
 var_plot <- function(parade) {
+
+  if (is.null(attr(parade, "data_type"))) {
+  	stop("The object you supplied doesn't seem to be a parade.")
+  }
   
   # The parade needs to be either a raw data or a summary data parade.
   if (!(attr(parade, "data_type") %in% c("raw", "summary"))) {
@@ -120,6 +128,10 @@ var_plot <- function(parade) {
 #' @rdname diagnostic_plot
 #' @export
 norm_qq <- function(parade) {
+
+  if (is.null(attr(parade, "data_type"))) {
+  	stop("The object you supplied doesn't seem to be a parade.")
+  }
   
   # The parade needs to be a raw data parade.
   if (!(attr(parade, "data_type") %in% c("raw"))) {
@@ -134,7 +146,7 @@ norm_qq <- function(parade) {
   
   require("tidyverse")
   
-  p <- ggplot(my_parade,
+  p <- ggplot(parade,
               aes(sample = .resid)) +
     stat_qq(shape = 1) +
     facet_wrap(~ .sample) +
@@ -147,6 +159,10 @@ norm_qq <- function(parade) {
 #' @rdname diagnostic_plot
 #' @export
 norm_hist <- function(parade, bins = 30) {
+
+  if (is.null(attr(parade, "data_type"))) {
+  	stop("The object you supplied doesn't seem to be a parade.")
+  }
   
   # The parade needs to be a raw data parade.
   if (!(attr(parade, "data_type") %in% c("raw"))) {
@@ -161,7 +177,7 @@ norm_hist <- function(parade, bins = 30) {
   
   require("tidyverse")
   
-  p <- ggplot(my_parade,
+  p <- ggplot(parade,
               aes(x = .resid)) +
     geom_histogram(bins = bins,
                    fill = "lightgrey", colour = "black") +

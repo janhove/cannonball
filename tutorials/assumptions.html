@@ -1,0 +1,726 @@
+<html>
+
+<head>
+<style type="text/css">
+.knitr .inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.rimage .left {
+  text-align: left;
+}
+.rimage .right {
+  text-align: right;
+}
+.rimage .center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<title>Checking the Assumptions of Your Statistical Model Without Getting Paranoid: Tutorial</title>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+</head>
+
+<body>
+
+<p>Author: Jan Vanhove (<a href="mailto:jan.vanhove@unifr.ch">@</a>, <a href="http://janhove.github.io">www</a>)<br />
+Last update: 12 September 2018</p>
+
+<h1>Introduction</h1>
+<p>The accompanying article can be downloaded from
+<a href="10.31234/osf.io/zvawb">PsyArxiv</a>.</p>
+
+<h1>Before we begin</h1>
+<p>I'll assume you have some basic knowledge of R
+(<a href="https://www.R-project.org/">R Core Team, 2018</a>),
+such as how you can read in CSV files.
+In addition, if you haven't already, install and load the tidyverse suite
+(<a href="https://CRAN.R-project.org/package=tidyverse">Wickham, 2017</a>):</p>
+
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">install.packages</span><span class="hl std">(</span><span class="hl str">&quot;tidyverse&quot;</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+
+<div class="chunk" id="unnamed-chunk-2"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(tidyverse)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## ---- Attaching packages -------------------------------------------------------------------- tidyverse 1.2.1 ----
+</pre></div>
+<div class="message"><pre class="knitr r">## V ggplot2 2.2.1     V purrr   0.2.4
+## V tibble  1.4.2     V dplyr   0.7.4
+## V tidyr   0.8.0     V stringr 1.2.0
+## V readr   1.1.1     V forcats 0.2.0
+</pre></div>
+<div class="message"><pre class="knitr r">## ---- Conflicts ------------------------------------------------------------------------- tidyverse_conflicts() ----
+## X dplyr::filter() masks stats::filter()
+## X dplyr::lag()    masks stats::lag()
+</pre></div>
+</div></div>
+
+The line-up protocol described in the accompanying paper
+was originally implemented in the nullabor package
+(<a href="https://CRAN.R-project.org/package=nullabor">Wickham et al., 2014</a>),
+but I find some of its default settings slightly cumbersome
+if you only use it for model diagnostics. To reduce the
+amount of typing required, I wrote my own set of functions.
+These are available in the cannonball package, which you can install as follows:
+
+<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># install the devtools package if needed:</span>
+<span class="hl com"># install.packages(&quot;devtools&quot;)</span>
+<span class="hl kwd">library</span><span class="hl std">(devtools)</span>
+<span class="hl kwd">install_github</span><span class="hl std">(</span><span class="hl str">&quot;janhove/cannonball&quot;</span><span class="hl std">)</span>
+</pre></div>
+
+</div></div>
+
+Then load this package:
+
+<div class="chunk" id="unnamed-chunk-4"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(cannonball)</span>
+</pre></div>
+</div></div>
+
+
+The line-up protocol involves the generation of random numbers.
+If you want to reproduce the results below exactly, you need to
+set the random seed. If you use these functions for checking
+models of your own, you don't have to do this.
+
+<div class="chunk" id="unnamed-chunk-5"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># Set random seed</span>
+<span class="hl kwd">set.seed</span><span class="hl std">(</span><span class="hl num">42</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+
+And one aesthetic consideration:
+
+<div class="chunk" id="unnamed-chunk-6"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># Change default plotting theme (just my preference)</span>
+<span class="hl kwd">theme_set</span><span class="hl std">(</span><span class="hl kwd">theme_bw</span><span class="hl std">(</span><span class="hl num">10</span><span class="hl std">))</span>
+</pre></div>
+</div></div>
+
+<h1>Example 1: A simple linear regression model</h1>
+
+<p>Download the data for DeKeyser et al.'s (2010) Israel study
+from my <a href="http://taal.ch/Datasets/dekeyser2010.csv">website</a>
+to your R working directory. (Use "save link as" for this;
+don't open the file in Excel and then save it.
+Excel has a way of messing up CSV files.)
+Then read it in and refit Vanhove's (2013) linear model:</p>
+
+<div class="chunk" id="unnamed-chunk-7"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># Read in data</span>
+<span class="hl std">d</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">read.csv</span><span class="hl std">(</span><span class="hl str">&quot;dekeyser2010.csv&quot;</span><span class="hl std">)</span>
+
+<span class="hl com"># Fit linear model</span>
+<span class="hl std">m</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">lm</span><span class="hl std">(GJT</span> <span class="hl opt">~</span> <span class="hl std">AOA,</span> <span class="hl kwc">data</span> <span class="hl std">= d)</span>
+<span class="hl kwd">summary</span><span class="hl std">(m)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## 
+## Call:
+## lm(formula = GJT ~ AOA, data = d)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -55.380  -7.338   2.662   9.777  36.204 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 187.1297     4.2762   43.76  &lt; 2e-16 ***
+## AOA          -1.2292     0.1226  -10.02 1.96e-14 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 16.23 on 60 degrees of freedom
+## Multiple R-squared:  0.626,	Adjusted R-squared:  0.6198 
+## F-statistic: 100.4 on 1 and 60 DF,  p-value: 1.965e-14
+</pre></div>
+</div></div>
+
+From the output, you can reconstruct the estimated regression equation:
+
+$$\widehat{\textrm{GJT}} = 187 - 1.2 \times \textrm{AOA}$$
+
+The estimated standard deviation of the distribution from
+which the residuals were sampled ("Residual standard error" in the output
+above) is about 16.
+
+<h2>Linearity</h2>
+<p>The function for generating a line-up of 19 simulated datasets
+alongside the real dataset is <em>parade()</em>. You need
+to supply to it the name of a fitted model; in this case <em>m</em>.</p>
+
+<div class="chunk" id="unnamed-chunk-8"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># Generate the parade and store it to a separate object</span>
+<span class="hl std">my_parade</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">parade</span><span class="hl std">(m)</span>
+</pre></div>
+</div></div>
+
+<p>By default, <em>parade()</em> generates a tibble
+(the tidyverse version of a data frame) with the model's
+predictor and outcome variables as well as its fitted
+values and residuals (and transformations thereof):</p>
+
+<div class="chunk" id="unnamed-chunk-9"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">head</span><span class="hl std">(my_parade)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 6 x 7
+##     AOA   GJT .fitted .resid .abs_resid .sqrt_abs_resid .sample
+##   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;           &lt;dbl&gt;   &lt;int&gt;
+## 1     4   204     186  18.9       18.9             4.35       1
+## 2     5   172     184 -12.3       12.3             3.51       1
+## 3     6   186     183   2.86       2.86            1.69       1
+## 4     6   190     183   7.24       7.24            2.69       1
+## 5     7   185     181   3.67       3.67            1.92       1
+## 6     7   177     181 - 4.62       4.62            2.15       1
+</pre></div>
+</div></div>
+
+<p>If your dataset contains variables that weren't part
+of the model and you wish to include these in the line-up,
+supply your dataset as the input to the optional full_data
+parameter:</p>
+
+<div class="chunk" id="unnamed-chunk-10"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># my_parade &lt;- parade(m, full_data = d)</span>
+</pre></div>
+</div></div>
+
+<p>Currently, <em>parade()</em> accepts models fitted with <em>lm()</em>
+as well as models fitted with the <em>gam()</em> function
+from the mgcv package (<a href="https://CRAN.R-project.org/package=mgcv">Wood, 2018</a>). 
+If there's sufficient demand (i.e., once I need it myself),
+other models may follow.</p>
+
+<p>To check for residual patterns due to unmodelled nonlinearities,
+you can plot the residual values (.resid) against the fitted values
+(.fitted). The <em>ggplot()</em> call for this is:</p>
+
+<div class="chunk" id="unnamed-chunk-11"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">ggplot</span><span class="hl std">(my_parade,</span>         <span class="hl com"># name of the parade object</span>
+       <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= .fitted,</span>   <span class="hl com"># fitted values on x-axis</span>
+           <span class="hl kwc">y</span> <span class="hl std">= .resid))</span> <span class="hl opt">+</span> <span class="hl com"># residual values on y-axis</span>
+  <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwc">shape</span> <span class="hl std">=</span> <span class="hl num">1</span><span class="hl std">)</span> <span class="hl opt">+</span> <span class="hl com"># plot them as hollow points</span>
+  <span class="hl kwd">geom_smooth</span><span class="hl std">()</span> <span class="hl opt">+</span>         <span class="hl com"># add a nonlinear scatterplot smoother</span>
+  <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span> <span class="hl std">.sample)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## `geom_smooth()` using method = 'loess'
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" class="plot" /></div></div>
+
+<p>A quicker way to draw the same plot is to use
+cannonball's <i>lin_plot()</i> function:</p>
+
+<div class="chunk" id="unnamed-chunk-12"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">lin_plot</span><span class="hl std">(my_parade)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## `geom_smooth()` using method = 'loess'
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" class="plot" /></div></div>
+
+<p>Once you've made your mind up about which plot evinces
+the strongest pattern, reveal the true data's position
+using <em>reveal()</em>:</p>
+
+<div class="chunk" id="unnamed-chunk-13"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">reveal</span><span class="hl std">(my_parade)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## The true data are in position 3.
+</pre></div>
+</div></div>
+
+Which is the atomic number of lithium.
+
+<h2>Constant variance</h2>
+
+<div class="chunk" id="unnamed-chunk-14"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># Generate a new parade</span>
+<span class="hl std">my_parade</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">parade</span><span class="hl std">(m)</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(my_parade,</span>
+       <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= .fitted,</span>
+           <span class="hl kwc">y</span> <span class="hl std">= .abs_resid))</span> <span class="hl opt">+</span> <span class="hl com"># use .sqrt_abs_resid if you prefer</span>
+                              <span class="hl com"># to plot the square roots of the</span>
+                              <span class="hl com"># residuals' absolute values</span>
+  <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwc">shape</span> <span class="hl std">=</span> <span class="hl num">1</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_smooth</span><span class="hl std">()</span> <span class="hl opt">+</span>
+  <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span> <span class="hl std">.sample)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## `geom_smooth()` using method = 'loess'
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" class="plot" /></div></div>
+
+<p>You can also use the <i>var_plot()</i> function
+if you don't want to tinker with these graphs.</p>
+
+<div class="chunk" id="unnamed-chunk-15"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">var_plot</span><span class="hl std">(my_parade)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## `geom_smooth()` using method = 'loess'
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" class="plot" /></div></div>
+
+<div class="chunk" id="unnamed-chunk-16"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">reveal</span><span class="hl std">(my_parade)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## The true data are in position 5.
+</pre></div>
+</div></div>
+
+<p><i>Take Five</i> is the instantly recognisable
+jazz hit penned by Paul Desmond.</p>
+
+<h2>Normality</h2>
+<p>Depending on what you find easiest to read, you
+can plot the residuals in a histogram or in a
+quantile&ndash;quantile plot.</p>
+<div class="chunk" id="unnamed-chunk-17"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># New line-up</span>
+<span class="hl std">my_parade</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">parade</span><span class="hl std">(m)</span>
+
+<span class="hl com"># Histogram</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(my_parade,</span>
+       <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= .resid))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_histogram</span><span class="hl std">(</span><span class="hl kwc">bins</span> <span class="hl std">=</span> <span class="hl num">30</span><span class="hl std">,</span> <span class="hl com"># you can change this if you want</span>
+                 <span class="hl kwc">fill</span> <span class="hl std">=</span> <span class="hl str">&quot;lightgrey&quot;</span><span class="hl std">,</span> <span class="hl kwc">colour</span> <span class="hl std">=</span> <span class="hl str">&quot;black&quot;</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span> <span class="hl std">.sample)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl com"># Quantile-quantile plot</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(my_parade,</span>
+       <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">sample</span> <span class="hl std">= .resid))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">stat_qq</span><span class="hl std">(</span><span class="hl kwc">shape</span> <span class="hl std">=</span> <span class="hl num">1</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span> <span class="hl std">.sample)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-17-2.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" class="plot" /></div></div>
+
+<p>Short-hand functions to draw these graphs are:</p>
+
+<div class="chunk" id="unnamed-chunk-18"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">norm_hist</span><span class="hl std">(my_parade)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl kwd">norm_qq</span><span class="hl std">(my_parade)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-18-2.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" class="plot" /></div></div>
+
+<div class="chunk" id="unnamed-chunk-19"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">reveal</span><span class="hl std">(my_parade)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## The true data are in position 11.
+</pre></div>
+</div></div>
+
+<h2>Impossible data</h2>
+<p>This is similar to what is known
+as posterior predictive checking in Bayesian statistics.
+The idea is that you check if the model occasionally
+generates data that are simply impossible given what you
+know about the subject-matter. Here I draw 19 additional
+scatterplots of the (simulated) AOA&ndash;GJT relationship.</p>
+
+<div class="chunk" id="unnamed-chunk-20"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># New line-up</span>
+<span class="hl std">my_parade</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">parade</span><span class="hl std">(m)</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(my_parade,</span>
+       <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= AOA,</span>
+           <span class="hl kwc">y</span> <span class="hl std">= GJT))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwc">shape</span> <span class="hl std">=</span> <span class="hl num">1</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_smooth</span><span class="hl std">()</span> <span class="hl opt">+</span>
+  <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span> <span class="hl std">.sample)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## `geom_smooth()` using method = 'loess'
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" class="plot" /></div></div>
+
+<p>The model sometimes generates GJT data
+outside of the possible range (0 to 204),
+showing that we know something about these
+data that the model doesn't. In principle,
+we could embed this knowledge in a more
+complex model, but doing so is beyond the scope
+of this tutorial.</p>
+
+<h1>Example 2: ANOVA on Likert-scale data</h1>
+<p>I cleaned up Lee et al.'s (2018) data set
+so that it's easier to read it into R. With
+their consent, I've put it on my <a href="http://taal.ch/Datasets/lee2018_s2.csv">website</a>
+from where you can download it to your working directory.
+(Use "save link as"; don't open it in Excel and then save it.)
+Then read in the dataset:</p>
+
+<div class="chunk" id="unnamed-chunk-21"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># Read in data</span>
+<span class="hl std">d</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">read.csv</span><span class="hl std">(</span><span class="hl str">&quot;lee2018_s2.csv&quot;</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+
+<h2>Refitting ANOVAs and t-tests as linear models</h2>
+<p>If you analysed your data using a Student's t-test
+and you want to use the <em>parade()</em> function,
+you need to refit the test as a linear model.
+This is pretty easy. Let's say your outcome variable
+is creatively named Y, your predictor (group) variable
+is called X and both are in a dataset called my_data.
+To run the t-test, you'd use this command:</p>
+
+<div class="chunk" id="unnamed-chunk-22"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># generic example</span>
+<span class="hl kwd">t.test</span><span class="hl std">(Y</span> <span class="hl opt">~</span> <span class="hl std">X,</span> <span class="hl kwc">data</span> <span class="hl std">= my_data,</span> <span class="hl kwc">var.equal</span> <span class="hl std">=</span> <span class="hl num">TRUE</span><span class="hl std">)</span>
+</pre></div>
+</div></div>
+
+<p>You will obtain the same results if you use the <em>lm()</em>
+function instead:</p>
+
+<div class="chunk" id="unnamed-chunk-23"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># generic example</span>
+<span class="hl std">my_model</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">lm</span><span class="hl std">(Y</span> <span class="hl opt">~</span> <span class="hl std">X,</span> <span class="hl kwc">data</span> <span class="hl std">= my_data)</span>
+<span class="hl kwd">summary</span><span class="hl std">(my_model)</span>
+</pre></div>
+</div></div>
+
+<p>Similarly, an ANOVA or ANCOVA can be reproduced as a linear model.
+If you have more than one predictor, just add the different predictors
+to the model using '+'. If your ANOVA contains an interaction,
+use '*' between the interacting predictors:</p>
+
+<div class="chunk" id="unnamed-chunk-24"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># Fit linear model</span>
+<span class="hl std">m</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">lm</span><span class="hl std">(Happiness</span> <span class="hl opt">~</span> <span class="hl std">PurchaseType</span> <span class="hl opt">*</span> <span class="hl std">SocialClass,</span> <span class="hl kwc">data</span> <span class="hl std">= d)</span>
+<span class="hl kwd">summary</span><span class="hl std">(m)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## 
+## Call:
+## lm(formula = Happiness ~ PurchaseType * SocialClass, data = d)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.4671 -0.3793  0.5329  0.6207  0.8385 
+## 
+## Coefficients:
+##                                     Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept)                          6.16154    0.08492  72.556  &lt; 2e-16
+## PurchaseTypematerial                 0.21777    0.12367   1.761  0.07890
+## SocialClasslow                       0.30557    0.11567   2.642  0.00853
+## PurchaseTypematerial:SocialClasslow -0.37502    0.18619  -2.014  0.04456
+##                                        
+## (Intercept)                         ***
+## PurchaseTypematerial                .  
+## SocialClasslow                      ** 
+## PurchaseTypematerial:SocialClasslow *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.9682 on 465 degrees of freedom
+## Multiple R-squared:  0.01544,	Adjusted R-squared:  0.009085 
+## F-statistic:  2.43 on 3 and 465 DF,  p-value: 0.06457
+</pre></div>
+</div></div>
+
+<h2>Constant variance</h2>
+<p>If we check for constant variance in the same
+way as before, it's ridiculously easy to spot
+the actual data plot:</p>
+
+<div class="chunk" id="unnamed-chunk-25"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">my_parade</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">parade</span><span class="hl std">(m)</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(my_parade,</span>
+       <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= .fitted,</span>
+           <span class="hl kwc">y</span> <span class="hl std">= .abs_resid))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwc">shape</span> <span class="hl std">=</span> <span class="hl num">1</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl com"># geom_smooth() + # uncomment this line if you like warnings</span>
+  <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span> <span class="hl std">.sample)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" class="plot" /></div></div>
+
+<p>As discussed in the accompanying paper,
+I suggest to instead compute the variance or
+standard deviation of the residuals per cell,
+so that we don't confuse one clear deficiency of the model
+(not taking into account the categorical nature of the outcome)
+with another possible one (heteroskedasticity).
+The <em>parade_summary()</em> function makes it easier
+to compute measures. It takes as its input
+an object generated by the <em>parade()</em> function:</p>
+
+<div class="chunk" id="unnamed-chunk-26"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">my_parade</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">parade</span><span class="hl std">(m)</span>
+<span class="hl std">my_parade_summary</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">parade_summary</span><span class="hl std">(my_parade)</span>
+</pre></div>
+</div></div>
+
+<p>For each cell, <em>parade_summary()</em> computes the
+mean residual (.mean_resid),
+the mean absolute residual (.mean_abs_resid),
+the mean of the square roots of the absolute residuals (.mean_sqrt_abs_resid),
+the standard deviation of the residuals (.sd),
+the variance of the residuals (.var),
+and the cell size (.n).
+It also labels each unique combination of non-outcome
+variables (.cell).
+The mean residual per cell may be useful to check if there
+are any interaction patterns or predictors that still need
+to be accounted for; the other measures are
+useful for checking for non-constant variance.</p>
+
+<div class="chunk" id="unnamed-chunk-27"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">head</span><span class="hl std">(my_parade_summary)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 6 x 11
+##   .sample PurchaseType SocialClass .fitted     .mean_resid .mean_abs_resid
+##     &lt;int&gt; &lt;fct&gt;        &lt;fct&gt;         &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;
+## 1       1 experiential high           6.09        2.99e-16           0.850
+## 2       1 experiential low            6.48       -1.45e-17           0.771
+## 3       1 material     high           6.31       -5.65e-17           0.913
+## 4       1 material     low            6.37       -3.74e-16           0.808
+## 5       2 experiential high           6.12       -6.33e-16           0.799
+## 6       2 experiential low            6.39        7.47e-16           0.769
+## # ... with 5 more variables: .mean_sqrt_abs_resid &lt;dbl&gt;, .var &lt;dbl&gt;,
+## #   .sd &lt;dbl&gt;, .n &lt;int&gt;, .cell &lt;fct&gt;
+</pre></div>
+</div></div>
+
+<p>By default, the cells are defined as the unique
+combinations of all non-outcome variable values
+present in the parade object, even those that
+weren't used for fitting the model.
+If you only want to define the cells using
+the predictors actually used in the model,
+specify the predictors_only parameter appropriately:</p>
+
+<div class="chunk" id="unnamed-chunk-28"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># my_parade_summary &lt;- parade_summary(my_parade, predictors_only = TRUE)</span>
+</pre></div>
+</div></div>
+
+<p>Incidentally, <em>parade_summary()</em> will throw
+a bunch of warnings if it's used in cases where I
+don't think that doing so is too useful (e.g.,
+fairly continuous outcome data, non-categorical
+predictors, small cell sizes).</p>
+
+<p>The output of <em>parade_summary()</em>
+can also be plotted using <em>ggplot()</em>:</p>
+
+<div class="chunk" id="unnamed-chunk-29"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">ggplot</span><span class="hl std">(my_parade_summary,</span>
+       <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= .cell,</span>
+           <span class="hl kwc">y</span> <span class="hl std">= .sd,</span>
+           <span class="hl kwc">group</span> <span class="hl std">=</span> <span class="hl num">1</span><span class="hl std">))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_point</span><span class="hl std">()</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_line</span><span class="hl std">()</span> <span class="hl opt">+</span>
+  <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span> <span class="hl std">.sample)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" class="plot" /></div></div>
+
+<p>You can also use the <i>var_plot()</i> function to draw
+this plot:</p>
+
+<div class="chunk" id="unnamed-chunk-30"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">var_plot</span><span class="hl std">(my_parade_summary)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" class="plot" /></div></div>
+
+<div class="chunk" id="unnamed-chunk-31"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">reveal</span><span class="hl std">(my_parade_summary)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## The true data are in position 19.
+</pre></div>
+</div></div>
+
+<p><i>Hey Nineteen</i> is one of my favourite Steely Dan tracks.</p>
+
+<h2>Normality</h2>
+<p>Regardless of whether the residuals
+are displayed in a histogram or in a
+QQ plot, the actual data panel sticks out.</p>
+
+<div class="chunk" id="unnamed-chunk-32"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">my_parade</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">parade</span><span class="hl std">(m)</span>
+<span class="hl kwd">norm_hist</span><span class="hl std">(my_parade)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl kwd">norm_qq</span><span class="hl std">(my_parade)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-32-2.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" class="plot" /></div></div>
+
+<p>If the amount of data doesn't fully reassure
+you, you can construct the confidence intervals
+using a nonparametric bootstrap. The confidence
+intervals are pretty much the same as those
+constructed using t-distributions, which
+technically require normality. That said,
+it may be a good idea to fit these
+data in an ordinal regression model
+(done but not shown here; Lee et al.'s (2018)
+substantive conclusions don't change).</p>
+
+<div class="chunk" id="unnamed-chunk-33"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># Check results with bootstrap -----</span>
+
+<span class="hl com"># Empty matrix that'll contain the bootstrap</span>
+<span class="hl com"># estimates for the model's 4 coefficients.</span>
+<span class="hl std">bs_est</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">matrix</span><span class="hl std">(</span><span class="hl kwc">ncol</span> <span class="hl std">=</span> <span class="hl kwd">length</span><span class="hl std">(</span><span class="hl kwd">coef</span><span class="hl std">(m)),</span> <span class="hl kwc">nrow</span> <span class="hl std">=</span> <span class="hl num">20000</span><span class="hl std">)</span>
+
+<span class="hl kwa">for</span> <span class="hl std">(i</span> <span class="hl kwa">in</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">20000</span><span class="hl std">) {</span>
+  <span class="hl com"># Draw bootstrap sample. Keep cell sizes intact.</span>
+  <span class="hl std">d_bs</span> <span class="hl kwb">&lt;-</span> <span class="hl std">d</span> <span class="hl opt">%&gt;%</span>
+    <span class="hl kwd">group_by</span><span class="hl std">(PurchaseType, SocialClass)</span> <span class="hl opt">%&gt;%</span>
+    <span class="hl kwd">sample_frac</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">replace</span> <span class="hl std">=</span> <span class="hl num">TRUE</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+    <span class="hl kwd">ungroup</span><span class="hl std">()</span>
+  <span class="hl com"># Refit model on bootstrap sample</span>
+  <span class="hl std">m_bs</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">lm</span><span class="hl std">(Happiness</span> <span class="hl opt">~</span> <span class="hl std">PurchaseType</span> <span class="hl opt">*</span> <span class="hl std">SocialClass,</span> <span class="hl kwc">data</span> <span class="hl std">= d_bs)</span>
+  <span class="hl com"># Extract coefficient estimates</span>
+  <span class="hl std">bs_est[i, ]</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">coef</span><span class="hl std">(m_bs)</span>
+<span class="hl std">}</span>
+
+<span class="hl com"># The t-distribution based 95% confidence intervals:</span>
+<span class="hl kwd">confint</span><span class="hl std">(m)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##                                           2.5 %       97.5 %
+## (Intercept)                          5.99466261  6.328414314
+## PurchaseTypematerial                -0.02524254  0.460786310
+## SocialClasslow                       0.07826846  0.532865138
+## PurchaseTypematerial:SocialClasslow -0.74088883 -0.009147157
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl com"># The bootstrap-based 95% confidence intervals (percentile method)</span>
+<span class="hl kwd">t</span><span class="hl std">(</span><span class="hl kwd">apply</span><span class="hl std">(bs_est,</span> <span class="hl num">2</span><span class="hl std">, quantile,</span> <span class="hl kwc">probs</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">0.025</span><span class="hl std">,</span> <span class="hl num">0.975</span><span class="hl std">)))</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##             2.5%       97.5%
+## [1,]  6.00769231 6.307692308
+## [2,] -0.02016578 0.447751989
+## [3,]  0.08704200 0.517634109
+## [4,] -0.75181717 0.001893036
+</pre></div>
+</div></div>
+
+<h1>Software versions</h1>
+<div class="chunk" id="unnamed-chunk-34"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">devtools</span><span class="hl opt">::</span><span class="hl kwd">session_info</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">&quot;tidyverse&quot;</span><span class="hl std">,</span> <span class="hl str">&quot;cannonball&quot;</span><span class="hl std">))</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## Session info -------------------------------------------------------------
+</pre></div>
+<div class="output"><pre class="knitr r">##  setting  value                       
+##  version  R version 3.4.4 (2018-03-15)
+##  system   x86_64, linux-gnu           
+##  ui       X11                         
+##  language (EN)                        
+##  collate  en_US.UTF-8                 
+##  tz       Europe/Brussels             
+##  date     2018-09-12
+</pre></div>
+<div class="message"><pre class="knitr r">## Packages -----------------------------------------------------------------
+</pre></div>
+<div class="output"><pre class="knitr r">##  package      * version    date       source                             
+##  assertthat     0.2.0      2017-04-11 CRAN (R 3.4.2)                     
+##  backports      1.1.2      2017-12-13 CRAN (R 3.4.2)                     
+##  base64enc      0.1-3      2015-07-28 CRAN (R 3.4.2)                     
+##  BH             1.66.0-1   2018-02-13 CRAN (R 3.4.2)                     
+##  bindr          0.1        2016-11-13 CRAN (R 3.4.2)                     
+##  bindrcpp     * 0.2        2017-06-17 CRAN (R 3.4.2)                     
+##  broom          0.4.3      2017-11-20 CRAN (R 3.4.2)                     
+##  callr          2.0.2      2018-02-11 CRAN (R 3.4.2)                     
+##  cannonball   * 0.0.0.9000 2018-09-11 Github (janhove/cannonball@197304f)
+##  cellranger     1.1.0      2016-07-27 CRAN (R 3.4.2)                     
+##  cli            1.0.0      2017-11-05 CRAN (R 3.4.2)                     
+##  colorspace     1.3-2      2016-12-14 CRAN (R 3.4.2)                     
+##  compiler       3.4.4      2018-04-21 local                              
+##  crayon         1.3.4      2017-09-16 CRAN (R 3.4.2)                     
+##  curl           3.1        2017-12-12 CRAN (R 3.4.2)                     
+##  DBI            0.7        2017-06-18 CRAN (R 3.4.2)                     
+##  dbplyr         1.2.0      2018-01-03 CRAN (R 3.4.2)                     
+##  debugme        1.1.0      2017-10-22 CRAN (R 3.4.2)                     
+##  dichromat      2.0-0      2013-01-24 CRAN (R 3.4.2)                     
+##  digest         0.6.15     2018-01-28 CRAN (R 3.4.2)                     
+##  dplyr        * 0.7.4      2017-09-28 CRAN (R 3.4.2)                     
+##  evaluate       0.10.1     2017-06-24 CRAN (R 3.4.2)                     
+##  forcats      * 0.2.0      2017-01-23 CRAN (R 3.4.2)                     
+##  foreign        0.8-69     2017-06-21 CRAN (R 3.4.2)                     
+##  ggplot2      * 2.2.1      2016-12-30 CRAN (R 3.4.2)                     
+##  glue           1.2.0      2017-10-29 CRAN (R 3.4.2)                     
+##  graphics     * 3.4.4      2018-04-21 local                              
+##  grDevices    * 3.4.4      2018-04-21 local                              
+##  grid           3.4.4      2018-04-21 local                              
+##  gtable         0.2.0      2016-02-26 CRAN (R 3.4.2)                     
+##  haven          1.1.1      2018-01-18 CRAN (R 3.4.2)                     
+##  highr          0.6        2016-05-09 CRAN (R 3.4.2)                     
+##  hms            0.4.1      2018-01-24 CRAN (R 3.4.2)                     
+##  htmltools      0.3.6      2017-04-28 CRAN (R 3.4.2)                     
+##  httr           1.3.1      2017-08-20 CRAN (R 3.4.2)                     
+##  jsonlite       1.5        2017-06-01 CRAN (R 3.4.2)                     
+##  knitr        * 1.19       2018-01-29 CRAN (R 3.4.2)                     
+##  labeling       0.3        2014-08-23 CRAN (R 3.4.2)                     
+##  lattice        0.20-35    2017-03-25 CRAN (R 3.4.2)                     
+##  lazyeval       0.2.1      2017-10-29 CRAN (R 3.4.2)                     
+##  lubridate      1.7.2      2018-02-06 CRAN (R 3.4.2)                     
+##  magrittr       1.5        2014-11-22 CRAN (R 3.4.2)                     
+##  markdown       0.8        2017-04-20 CRAN (R 3.4.2)                     
+##  MASS           7.3-49     2018-02-23 CRAN (R 3.4.3)                     
+##  methods      * 3.4.4      2018-04-21 local                              
+##  mime           0.5        2016-07-07 CRAN (R 3.4.2)                     
+##  mnormt         1.5-5      2016-10-15 CRAN (R 3.4.2)                     
+##  modelr         0.1.1      2017-07-24 CRAN (R 3.4.2)                     
+##  munsell        0.4.3      2016-02-13 CRAN (R 3.4.2)                     
+##  nlme           3.1-131.1  2018-02-16 CRAN (R 3.4.2)                     
+##  openssl        1.0        2018-02-02 CRAN (R 3.4.2)                     
+##  parallel       3.4.4      2018-04-21 local                              
+##  pillar         1.1.0      2018-01-14 CRAN (R 3.4.2)                     
+##  pkgconfig      2.0.1      2017-03-21 CRAN (R 3.4.2)                     
+##  plogr          0.1-1      2016-09-24 CRAN (R 3.4.2)                     
+##  plyr           1.8.4      2016-06-08 CRAN (R 3.4.2)                     
+##  praise         1.0.0      2015-08-11 CRAN (R 3.4.2)                     
+##  psych          1.7.8      2017-09-09 CRAN (R 3.4.2)                     
+##  purrr        * 0.2.4      2017-10-18 CRAN (R 3.4.2)                     
+##  R6             2.2.2      2017-06-17 CRAN (R 3.4.2)                     
+##  RColorBrewer   1.1-2      2014-12-07 CRAN (R 3.4.2)                     
+##  Rcpp           0.12.15    2018-01-20 CRAN (R 3.4.2)                     
+##  readr        * 1.1.1      2017-05-16 CRAN (R 3.4.2)                     
+##  readxl         1.0.0      2017-04-18 CRAN (R 3.4.2)                     
+##  rematch        1.0.1      2016-04-21 CRAN (R 3.4.2)                     
+##  reprex         0.1.2      2018-01-26 CRAN (R 3.4.2)                     
+##  reshape2       1.4.3      2017-12-11 CRAN (R 3.4.2)                     
+##  rlang          0.1.6      2017-12-21 CRAN (R 3.4.2)                     
+##  rmarkdown      1.8        2017-11-17 CRAN (R 3.4.2)                     
+##  rprojroot      1.3-2      2018-01-03 CRAN (R 3.4.2)                     
+##  rstudioapi     0.7        2017-09-07 CRAN (R 3.4.2)                     
+##  rvest          0.3.2      2016-06-17 CRAN (R 3.4.2)                     
+##  scales         0.5.0      2017-08-24 CRAN (R 3.4.2)                     
+##  selectr        0.3-1      2016-12-19 CRAN (R 3.4.2)                     
+##  stats        * 3.4.4      2018-04-21 local                              
+##  stringi        1.1.6      2017-11-17 CRAN (R 3.4.2)                     
+##  stringr      * 1.2.0      2017-02-18 CRAN (R 3.4.2)                     
+##  testthat       2.0.0      2017-12-13 CRAN (R 3.4.2)                     
+##  tibble       * 1.4.2      2018-01-22 CRAN (R 3.4.2)                     
+##  tidyr        * 0.8.0      2018-01-29 CRAN (R 3.4.2)                     
+##  tidyselect     0.2.3      2017-11-06 CRAN (R 3.4.2)                     
+##  tidyverse    * 1.2.1      2017-11-14 CRAN (R 3.4.2)                     
+##  tools          3.4.4      2018-04-21 local                              
+##  utf8           1.1.3      2018-01-03 CRAN (R 3.4.2)                     
+##  utils        * 3.4.4      2018-04-21 local                              
+##  viridisLite    0.3.0      2018-02-01 CRAN (R 3.4.2)                     
+##  whisker        0.3-2      2013-04-28 CRAN (R 3.4.2)                     
+##  withr          2.1.1      2017-12-19 CRAN (R 3.4.2)                     
+##  xml2           1.2.0      2018-01-24 CRAN (R 3.4.2)                     
+##  yaml           2.1.16     2017-12-12 CRAN (R 3.4.2)
+</pre></div>
+</div></div>
+
+</body>
+</html>

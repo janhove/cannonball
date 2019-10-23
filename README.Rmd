@@ -45,7 +45,42 @@ plot_r(r = 0.5, n = 35)
 
 For more info, see `?plot_r`.
 
-Accompanying blog post: [_What data patterns can lie behind a correlation coefficient?_](http://janhove.github.io/teaching/2016/11/21/what-correlations-look-like)
+Accompanying blog post: [_What data patterns can lie behind a correlation coefficient?_](https://janhove.github.io/teaching/2016/11/21/what-correlations-look-like)
+
+### Walkthroughs
+
+To help students see the connection between an experiment's
+design and its analysis, I've written two functions.
+
+`walkthrough_p()` guides the user through a completely randomised
+experiment: Data points are generated and randomly assigned
+to either the control or intervention condition. Then, the
+intervention effect is added to the data points in the intervention
+condition. Finally, the data are analysed using a Student's t-test
+or, if `pedant = TRUE`, a permutation test.
+
+```{r, eval = FALSE}
+# see ?walkthrough_p
+walkthrough_p(n = 18, diff = 0.3, sd = 1, pedant = TRUE)
+```
+
+`walkthrough_blocking()` works similarly to `walkthrough_p()`
+but describes a randomised block design: Prior information about
+the data points is available in the form of a covariate (e.g.,
+a pretest score). This information is used to group participants
+into 'blocks', and the randomisation is restricted in that one
+participant per block is assigned to the control and one to the
+intervention condition. Crucially, the analysis needs to take this
+restricted randomisation into account.
+
+```{r, eval = FALSE}
+# ?walkthrough_blocking
+walkthrough_blocking(n = 12, diff = 0.4, sd = 1)
+```
+
+An alternative, more powerful, but less easily explained analysis
+would use the blocking _covariate_ as a control variable in
+a general linear model rather than the blocking _factor_.
 
 ### Simulate data for cluster-randomised experiment
 The data from experiments in which entire clusters
@@ -69,16 +104,15 @@ ggplot(data = d,
   geom_boxplot(outlier.shape = NA) +
   geom_point(shape = 1,
              position = position_jitter(width = 0.1, height = 0)) +
-  facet_wrap(~ group_class, scales = "free_x") +
+  facet_wrap(~ condition, scales = "free_x") +
   xlab("class")
-
 ```
 
-For more info, see `?clustered_data`.
+A covariate can also be created. For more info, see `?clustered_data`.
 
-Accompanying article: Vanhove, Jan. 2015. [Analyzing randomized controlled interventions: Three notes for applied linguists](http://dx.doi.org/10.14746/ssllt.2015.5.1.7). _Studies in Second Language Learning and Teaching_ 5(1). 135–152. (See the [correction note](http://pressto.amu.edu.pl/index.php/ssllt/article/view/5827/5895) for this paper.)
+Accompanying article: Vanhove, Jan. 2015. [Analyzing randomized controlled interventions: Three notes for applied linguists](http://doi.org/10.14746/ssllt.2015.5.1.7). _Studies in Second Language Learning and Teaching_ 5(1). 135–152. (See the [correction note](http://pressto.amu.edu.pl/index.php/ssllt/article/view/5827/5895) for this paper.)
 
-Accompanying blog post: [_Experiments with intact groups: spurious significance with improperly weighted t-tests_](http://janhove.github.io/design/2016/02/16/cluster-randomisation-correction).
+Accompanying blog post: [_Experiments with intact groups: spurious significance with improperly weighted t-tests_](https://janhove.github.io/design/2016/02/16/cluster-randomisation-correction).
 
 ### Check model assumptions graphically
 These functions may be helpful for helping you to judge
@@ -87,7 +121,7 @@ By embedding the model's diagnostic plot in a line-up of diagnostic plots
 of simulated data for which the model's assumptions are literally met,
 analysts can more easily determine whether any blips in these plots are
 indicative of assumption violations or whether they can plausibly be
-accounted for by sampling error/noise. See [Buja et al. (2009)](http://dx.doi.org/10.1098/rsta.2009.0120).
+accounted for by sampling error/noise. See [Buja et al. (2009)](http://doi.org/10.1098/rsta.2009.0120).
 
 ```{r}
 # Fit model

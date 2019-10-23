@@ -7,11 +7,11 @@
 reveal(parade)
 }
 \arguments{
-\item{parade}{The name of an object generated using the `parade()`
-or `parade_summary()` function.}
+\item{parade}{The name of an object generated using the \code{\link{parade()}}
+or \code{\link{parade_summary()}} function.}
 }
 \description{
-The title says it all.
+This function reveals the position of the true data in a parade.
 }
 \examples{
 # Fit model

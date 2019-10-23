@@ -1,0 +1,18 @@
+citEntry(entry = "Misc", 
+	author    = personList(
+                   	as.person("Jan Vanhove")
+                  ),
+  title     = "cannonball: Tools for teaching statistics",
+  month     = "10",
+  year      = "2019",
+  note      = "R package, version 0.1.0",
+  url       = "https://github.com/janhove/cannonball",
+
+  textVersion  =
+  paste("Vanhove, Jan. 2019.",
+        "cannonball: Tools for teaching statistics.",
+        "R package, version 0.1.0.",
+        "Available from https://github.com/janhove/cannonball."),
+
+  header = "To cite 'cannonball', please use:"
+)

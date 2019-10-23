@@ -1,28 +1,35 @@
-#' @title Summarise residual information in a diagnostic parade per cell
+#' @title Summarise residual information in a diagnostic parade per cell or per unique predictor value
 #'
-#' @description This function takes the output of the `parade()` function
+#' @description This function takes the output of the \code{\link{parade()}} function
 #' and summarises the residuals (and the fitted values) for each unique
 #' combination of variables. This may be useful when checking the
 #' constant-variance assumption but the nature of the data is such that
 #' plotting the raw residuals will make them stand out from the distractor
 #' plots even if non-constant variance isn't much of a problem.
-#' Feed the output of this function to `var_plot()` to obtain a quick
+#' Feed the output of this function to \code{\link{var_plot()}} to obtain a quick
 #' diagnostic plot for the constant-variance assumption.
 #'
-#' I think `parade_summary()` is mostly useful when dealing with fairly
+#' I think \code{parade_summary()} is mostly useful when dealing with fairly
 #' discrete outcome data, so the function will throw a warning if the
 #' outcome data seem fairly continuous. (Arbitrarily when there are
-#' fewer than 20 unique outcome values.)
+#' more than 20 unique outcome values.)
 #' It will also throw a warning when the non-outcome data used to define
 #' the cells aren't categorical or when the number of observations per
 #' cell seems low (arbitrarily fewer than 5 observations).
 #'
-#' @param parade The name of an object generated using the `parade()` function.
-#' @param predictors_only If you supplied a dataset to the `full_data` argument
-#' in the `parade()` call, `parade_summary()` will by default compute mean fitted values
+#' The assignment of cells in the design to cell numbers in the parade
+#' summary is random. That is, one particular predictor combination
+#' may be associated with Cell 3 when running `parade_summary()` one time,
+#' but with Cell 1 when running it a second time. Within a given parade
+#' summary, however, the same cell number always refers to the same
+#' combination of predictor combinations.
+#'
+#' @param parade The name of an object generated using the \code{parade()} function.
+#' @param predictors_only If you supplied a dataset to the \code{full_data} argument
+#' in the \code{parade()} call, \code{parade_summary()} will by default compute mean fitted values
 #' and a host of residual summaries for each unique combination of all the non-outcome
-#' variables in this dataset. To override this behaviour, set `predictors_only`
-#' to `FALSE`; this causes `parade_summary()` to only compute mean fitted values
+#' variables in this dataset. To override this behaviour, set \code{predictors_only}
+#' to \code{FALSE}; this causes \code{parade_summary()} to only compute mean fitted values
 #' and residual summaries for each unique combination of the predictors that
 #' are actually in the model.
 #' @keywords model diagnostics, assumptions, lineup protocol
@@ -76,17 +83,17 @@ parade_summary <- function(parade, predictors_only = FALSE) {
   require("tidyverse")
 
   # Throw a warning if the outcome variable isn't very categorical.
-  # (Arbitrarily defined as more than 20 unique observations.)
+  # (Arbitrarily defined as 20 or more unique observations.)
   n_outcome_levels <- parade %>%
     filter(.sample == attr(parade, "position")) %>%
     select(attr(parade, "outcome_var")) %>%
     distinct() %>%
     nrow()
   if (n_outcome_levels > 19) {
-    warning(paste0(attr(parade, "outcome_var"), " contains ",
+    warning(paste0("The outcome variable (", attr(parade, "outcome_var"), ") contains ",
                    n_outcome_levels, " unique values. ",
                    "Perhaps you can draw standard diagnostic plots ",
-                   "instead of averaging the residuals."))
+                   "instead of averaging the residuals?"))
   }
 
   if (predictors_only == FALSE) {
@@ -98,8 +105,7 @@ parade_summary <- function(parade, predictors_only = FALSE) {
     grouping_vars <- attr(parade, "predictor_vars")
   }
 
-  # Throw a warning if not all grouping variables
-  # are characters or factors.
+  # Throw a warning if not all grouping variables are characters or factors.
   if (!(all(sapply(parade[, grouping_vars], class) %in% c("character", "factor")))) {
     warning(paste0("Not all grouping variables are characters or factors. ",
                    "Are you sure you want to use this function?"))
@@ -115,6 +121,9 @@ parade_summary <- function(parade, predictors_only = FALSE) {
               .sd = sd(.resid, na.rm = TRUE),
               .n = n()) %>%
     ungroup() %>%
+    # Randomly reorder the summary data: this ensures that the mapping of the data to the
+    # cells is arbitrary.
+    sample_frac(1, replace = FALSE) %>%
     group_by(.sample) %>%
     mutate(.cell = factor(row_number())) %>%
     ungroup()

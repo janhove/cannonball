@@ -4,27 +4,43 @@
 \alias{parade}
 \title{Generate dataset for a diagnostic parade}
 \usage{
-parade(model, full_data = NULL)
+parade(model, full_data = NULL, size = 20)
 }
 \arguments{
 \item{model}{The name of the statistical model you want to diagnose.
-Currently only lm(), gam() (from the `mgcv` package) and lmer() (from the `lme4` package) models are supported.
+Currently only lm(), gam() (from the \pkg{mgcv} package) and lmer() (from the \pkg{lme4} package) models are supported.
 For the lmer() models, only residual diagnostics are supported; support for BLUP ('random effects') diagnostics
 is still lacking.}
 
 \item{full_data}{By default, the output will only include variables that are part of the model.
 If you want to include all the variables that are present in the dataframe
 on which the model was fitted, supply this dataframe's name to full_data.}
+
+\item{size}{The number of simulated and actual datasets that the parade will contain.
+This defaults to 20, meaning that the actual dataset will be hidden among 19
+simulated datasets.}
+}
+\value{
+A tibble containing predictors, outcomes, fitted values and residuals for both the real dataset and simulated datasets.
 }
 \description{
-This function generates a parade (= 'lineup' in the `nullabor` package)
+This function generates a parade (= \code{\link[nullabor]{lineup()}} in the \pkg{nullabor} package)
 that hides the observations, fitted values, and residuals of a statistical model you
-want to diagnose among the observations, fitted values, and residuals of 19 similar models
-that were fitted on simulated outcome data. The 19 sets of simulated outcome data are
+want to diagnose among the observations, fitted values, and residuals of a number similar models
+that were fitted on simulated outcome data. The sets of simulated outcome data are
 generated from the original model so that this model's assumptions are literally true
 for the simulated data. The 'tibble' (dataframe) created by this can be used to draw
-20 panels of diagnostic plots (see examples).
+panels of diagnostic plots (see examples).
 }
+\section{Transformed predictors}{
+
+If you want to include transformed predictors in the model call (e.g., \code{log(x)}),
+transform the predictor before using it in the model call (see examples).
+
+This function relies on \code{\link[broom]{augment()}} in the \pkg{broom} package. Since \code{augment()}
+cannot handle model calls with \code{poly()} or \code{ns()}, \code{parade()} can't handle these, either.
+}
+
 \examples{
 # A simple regression model
 m <- lm(mpg ~ disp, data = mtcars)
@@ -46,6 +62,43 @@ norm_qq(my_parade)
 norm_hist(my_parade)
 norm_hist(my_parade, bins = 10)
 reveal(my_parade)
+
+# If you want to include all predictors in the dataset in the parade:
+my_parade <- parade(m, full_data = mtcars)
+my_parade
+
+# If you want to generate a parade with 50 instead of 20 plots:
+my_parade <- parade(m, size = 50)
+norm_qq(my_parade)
+
+# The function also works for generalised additive models fitted with mgcv:
+library(mgcv)
+m.gam <- gam(mpg ~ s(disp) + wt + s(qsec), data = mtcars)
+my_parade <- parade(m.gam)
+lin_plot(my_parade)
+my_parade <- parade(m.gam)
+norm_qq(my_parade)
+
+m.gam <- gam(mpg ~ te(disp, qsec) + wt, data = mtcars)
+my_parade <- parade(m.gam)
+lin_plot(my_parade)
+
+# And has some limited support for lmer() models (from the lme4 package)
+library(lme4)
+m.lmer <- lmer(Reaction ~ Days + (Days|Subject), data = sleepstudy)
+my_parade <- parade(m.lmer)
+norm_hist(my_parade, bins = 15)
+# Support for diagnosing the BLUPs would be nice.
+
+# Transformed predictors:
+# This won't work:
+# m <- lm(mpg ~ log2(disp), data = mtcars)
+# my_parade <- parade(m)
+
+# This will:
+mtcars$log2.disp <- log2(mtcars$disp)
+m <- lm(mpg ~ log2.disp, data = mtcars)
+my_parade <- parade(m)
 }
 \keyword{assumptions,}
 \keyword{diagnostics,}

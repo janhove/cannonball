@@ -8,36 +8,41 @@
 \alias{norm_hist}
 \title{Draw diagnostic parades}
 \usage{
-lin_plot(parade)
+lin_plot(parade, predictor = NULL)
 
-var_plot(parade)
+var_plot(parade, predictor = NULL)
 
 norm_qq(parade)
 
 norm_hist(parade, bins = 30)
 }
 \arguments{
-\item{parade}{The name of an object generated using `parade()`.
-For `var_plot()`, objects generated using `resid_summary()` are also accepted.}
+\item{parade}{The name of an object generated using \code{parade()}.
+For \code{var_plot()}, objects generated using \code{parade_summary()} are also accepted.}
+
+\item{predictor}{The name of a variable in the parade object against which the residuals
+should be plotted. If this parameter isn't specified (default), the residuals will be plotted
+against their respective fitted values.}
 
 \item{bins}{How many bins should the histograms contain? Defaults to 30.}
 }
 \description{
-These are short-hand functions to quickly draw
-diagnostic parades.
+These are short-hand functions to quickly draw diagnostic parades.
 
-`lin_plot()` plots the models' residuals against their corresponding fitted values.
-This is useful for checking the linearity assumption.
+\code{lin_plot()} plots the models' residuals against (by default) their corresponding fitted values.
+The residuals can also be plotted against a specific predictor if the \code{predictor}
+parameter is set.
+This function is useful for checking the linearity assumption.
 
-`var_plot()` plots the models' absolute residuals against their corresponding fitted values
-if it is fed an object generated using `parade()`. If it is fed an object
-generated using `resid_summary()`, it plots the sample standard deviation of the residuals
-per cell.
-This is useful for checking the constant-variance assumption.
+\code{var_plot()} plots the models' absolute residuals against (by default)
+their corresponding fitted values if it is fed an object generated using \code{parade()}.
+The absolute residuals can also be plotted against a specific predictor if the \code{predictor} argument
+is set. If it is fed an object generated using \code{parade_summary()},
+it plots the sample standard deviation of the residuals per cell.
+This function is useful for checking the constant-variance assumption.
 
-`norm_qq()` and `norm_hist()` plot normal quantile-quantile plots and histograms of the
-models' residuals, respectively.
-This is useful for checking the normality assumption.
+\code{norm_qq()} and \code{norm_hist()} plot normal quantile-quantile plots and histograms of the
+models' residuals, respectively. This function is useful for checking the normality assumption.
 }
 \examples{
 # A simple regression model
@@ -59,5 +64,12 @@ norm_qq(my_parade)
 norm_hist(my_parade)
 norm_hist(my_parade, bins = 10)
 reveal(my_parade)
+
+# Example with gam
+library(mgcv)
+m.gam <- gam(mpg ~ s(disp) + wt + s(qsec, by = am), data = mtcars)
+my_parade <- parade(m.gam)
+lin_plot(my_parade)
+lin_plot(my_parade, predictor = "wt")
+lin_plot(my_parade, predictor = "qsec")
 }
-\keyword{dogs}

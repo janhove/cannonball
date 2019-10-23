@@ -2,38 +2,45 @@
 % Please edit documentation in R/parade_summary.R
 \name{parade_summary}
 \alias{parade_summary}
-\title{Summarise residual information in a diagnostic parade per cell}
+\title{Summarise residual information in a diagnostic parade per cell or per unique predictor value}
 \usage{
 parade_summary(parade, predictors_only = FALSE)
 }
 \arguments{
-\item{parade}{The name of an object generated using the `parade()` function.}
+\item{parade}{The name of an object generated using the \code{parade()} function.}
 
-\item{predictors_only}{If you supplied a dataset to the `full_data` argument
-in the `parade()` call, `parade_summary()` will by default compute mean fitted values
+\item{predictors_only}{If you supplied a dataset to the \code{full_data} argument
+in the \code{parade()} call, \code{parade_summary()} will by default compute mean fitted values
 and a host of residual summaries for each unique combination of all the non-outcome
-variables in this dataset. To override this behaviour, set `predictors_only`
-to `FALSE`; this causes `parade_summary()` to only compute mean fitted values
+variables in this dataset. To override this behaviour, set \code{predictors_only}
+to \code{FALSE}; this causes \code{parade_summary()} to only compute mean fitted values
 and residual summaries for each unique combination of the predictors that
 are actually in the model.}
 }
 \description{
-This function takes the output of the `parade()` function
+This function takes the output of the \code{\link{parade()}} function
 and summarises the residuals (and the fitted values) for each unique
 combination of variables. This may be useful when checking the
 constant-variance assumption but the nature of the data is such that
 plotting the raw residuals will make them stand out from the distractor
 plots even if non-constant variance isn't much of a problem.
-Feed the output of this function to `var_plot()` to obtain a quick
+Feed the output of this function to \code{\link{var_plot()}} to obtain a quick
 diagnostic plot for the constant-variance assumption.
 
-I think `parade_summary()` is mostly useful when dealing with fairly
+I think \code{parade_summary()} is mostly useful when dealing with fairly
 discrete outcome data, so the function will throw a warning if the
 outcome data seem fairly continuous. (Arbitrarily when there are
-fewer than 20 unique outcome values.)
+more than 20 unique outcome values.)
 It will also throw a warning when the non-outcome data used to define
 the cells aren't categorical or when the number of observations per
 cell seems low (arbitrarily fewer than 5 observations).
+
+The assignment of cells in the design to cell numbers in the parade
+summary is random. That is, one particular predictor combination
+may be associated with Cell 3 when running `parade_summary()` one time,
+but with Cell 1 when running it a second time. Within a given parade
+summary, however, the same cell number always refers to the same
+combination of predictor combinations.
 }
 \examples{
 # Fit model

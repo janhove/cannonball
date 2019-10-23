@@ -1,0 +1,17 @@
+Changes to the cannonball package
+
+
+2019 - October:
+
+* The number of diagnostic plots in a parade defaults to 20 but can now be changed by the user ('size' parameter in the parade() function).
+
+* In addition to plotting the residuals or absolute residuals against their respective fitted values, they can now also be plotted against their predictor values ('predictor' parameter in the lin_plot() and var_plot() functions).
+
+* The parade() function now offers some support for transformed predictors (e.g., lm(y ~ I(x^2)). The use of poly() and ns() is still not supported, though, as broom::augment() doesn't support this either. See the examples on ?parade.
+
+* parade_summary() now randomly maps the cells in the design to cell numbers.
+
+* clustered_data() now supports measurement error and the generation of a covariate.
+
+* New functions: walkthrough_p() and walkthrough_blocking(). See their help pages for more information.
+

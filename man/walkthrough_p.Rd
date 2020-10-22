@@ -4,8 +4,7 @@
 \alias{walkthrough_p}
 \title{Walkthrough p-values}
 \usage{
-walkthrough_p(n = 10, diff = 0, sd = 1, showdata = FALSE,
-  pedant = FALSE)
+walkthrough_p(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = FALSE)
 }
 \arguments{
 \item{n}{The number of data points per group.}
@@ -14,10 +13,10 @@ walkthrough_p(n = 10, diff = 0, sd = 1, showdata = FALSE,
 
 \item{sd}{The standard deviation of the normal distributions from which the data are drawn.}
 
-\item{showdata}{Do you want to output a dataframe containing the plotted data (TRUE)
-or not (FALSE, default)?}
+\item{showdata}{Do you want to output a dataframe containing the plotted data (\code{TRUE})
+or not (\code{FALSE}, default)?}
 
-\item{pedant}{Do you want to run the significance test in pedant mode (TRUE) or not (FALSE, default)? See Details.}
+\item{pedant}{Do you want to run the significance test in pedant mode (\code{TRUE}) or not (\code{FALSE}, default)? See Details.}
 }
 \description{
 This function produces a step-by-step demonstration
@@ -27,7 +26,7 @@ This function produces a step-by-step demonstration
 Data are generated from a normal distribution with the requested
 standard deviation. Then, the data points are randomly assigned to two
 equal-sized groups. Data points in the intervention group receive a boost
-as specified by \code{diff}. Finally, a significance test is ran on the data.
+as specified by \code{diff}. Finally, a significance test is run on the data.
 
 By default, the significance test is a two-sample Student's t-test.
 Technically, the p-value from this test is the probability

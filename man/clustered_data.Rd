@@ -4,8 +4,14 @@
 \alias{clustered_data}
 \title{Simulate data for a cluster-randomised experiment}
 \usage{
-clustered_data(n_per_class = rep(20, 10), ICC = 0.15, effect = 0,
-  rho_prepost = NULL, reliability_post = 1, reliability_pre = NULL)
+clustered_data(
+  n_per_class = rep(20, 10),
+  ICC = 0.15,
+  effect = 0,
+  rho_prepost = NULL,
+  reliability_post = 1,
+  reliability_pre = NULL
+)
 }
 \arguments{
 \item{n_per_class}{The number of participants per class. The first half of the classes are

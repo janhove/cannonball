@@ -4,8 +4,14 @@
 \alias{walkthrough_blocking}
 \title{Walkthrough blocking on a covariate}
 \usage{
-walkthrough_blocking(n = 10, diff = 0, sd = 1, rho = 0.8,
-  showdata = FALSE, pedant = FALSE)
+walkthrough_blocking(
+  n = 10,
+  diff = 0,
+  sd = 1,
+  rho = 0.8,
+  showdata = FALSE,
+  pedant = FALSE
+)
 }
 \arguments{
 \item{n}{The number of data points per group.}
@@ -16,10 +22,10 @@ walkthrough_blocking(n = 10, diff = 0, sd = 1, rho = 0.8,
 
 \item{rho}{The correlation between the covariate and the outcome (pre-intervention) in the population.}
 
-\item{showdata}{Do you want to output a dataframe containing the plotted data (TRUE)
-or not (FALSE, default)?}
+\item{showdata}{Do you want to output a dataframe containing the plotted data (\code{TRUE})
+or not (\code{FALSE}, default)?}
 
-\item{pedant}{Do you want to run the significance test in pedant mode (TRUE) or not (FALSE, default)? See Details.}
+\item{pedant}{Do you want to run the significance test in pedant mode (\code{TRUE}) or not (\code{FALSE}, default)? See Details.}
 }
 \description{
 This function produces a step-by-step demonstration

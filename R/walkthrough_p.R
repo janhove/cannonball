@@ -5,14 +5,14 @@
 #' @param n The number of data points per group.
 #' @param diff The boost that participants in the intervention group receive.
 #' @param sd The standard deviation of the normal distributions from which the data are drawn.
-#' @param showdata Do you want to output a dataframe containing the plotted data (TRUE)
-#'                 or not (FALSE, default)?
-#' @param pedant Do you want to run the significance test in pedant mode (TRUE) or not (FALSE, default)? See Details.
+#' @param showdata Do you want to output a dataframe containing the plotted data (\code{TRUE})
+#'                 or not (\code{FALSE}, default)?
+#' @param pedant Do you want to run the significance test in pedant mode (\code{TRUE}) or not (\code{FALSE}, default)? See Details.
 #' @keywords significance test, p-value
 #' @details Data are generated from a normal distribution with the requested
 #' standard deviation. Then, the data points are randomly assigned to two
 #' equal-sized groups. Data points in the intervention group receive a boost
-#' as specified by \code{diff}. Finally, a significance test is ran on the data.
+#' as specified by \code{diff}. Finally, a significance test is run on the data.
 #'
 #' By default, the significance test is a two-sample Student's t-test.
 #' Technically, the p-value from this test is the probability
@@ -63,6 +63,7 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
   df <- data.frame(group = rep(c("intervention", "control"), times = n),
                    score = c(rnorm(n, 10, sd = sd),
                              rnorm(n, 10, sd = sd)))
+  df$group <- factor(df$group)
   df$group <- relevel(df$group, "intervention")
   df <- df[sample(1:(2*n)), ]
   df$subject <- factor(1:(2*n))
@@ -139,7 +140,7 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
   if (pedant == FALSE) {
     p_value <- round(t_test$p.value, 3)
   } else if (pedant == TRUE) {
-    p_value <- coin::pvalue(coin::independence_test(score ~ group, data = df, distribution = "approximate"))
+    p_value <- round(coin::pvalue(coin::independence_test(score ~ group, data = df, distribution = "approximate")), 3)
   }
 
   p3 <- ggplot(df,

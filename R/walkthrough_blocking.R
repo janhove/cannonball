@@ -7,9 +7,9 @@
 #' @param diff The boost that participants in the intervention group receive.
 #' @param sd The standard deviation of the normal distributions from which the data are drawn.
 #' @param rho The correlation between the covariate and the outcome (pre-intervention) in the population.
-#' @param showdata Do you want to output a dataframe containing the plotted data (TRUE)
-#'                 or not (FALSE, default)?
-#' @param pedant Do you want to run the significance test in pedant mode (TRUE) or not (FALSE, default)? See Details.
+#' @param showdata Do you want to output a dataframe containing the plotted data (\code{TRUE})
+#'                 or not (\code{FALSE}, default)?
+#' @param pedant Do you want to run the significance test in pedant mode (\code{TRUE}) or not (\code{FALSE}, default)? See Details.
 #' @keywords significance test, p-value, blocking, control variable
 #' @details Data are generated from a normal distribution with the requested
 #' standard deviation; a covariate is also generated. The data points are then
@@ -283,7 +283,7 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
     )
   } else if (pedant == TRUE) {
     means_H0 <- replicate(20000, mean(per_block$difference * sample(c(-1, 1), n, replace = TRUE)))
-    p_value <- mean(abs(means_H0) >= abs(sample_difference))
+    p_value <- round(mean(abs(means_H0) >= abs(sample_difference)), 3)
 
     my_text <- paste0(
       "The mean difference score is ", sample_difference, " points (red line), ",

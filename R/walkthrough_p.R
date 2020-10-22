@@ -31,11 +31,11 @@
 #' walkthrough_p(n = 12, diff = 0.2, sd = 1.3)
 #'
 #' # Save data and double check results
-#' dat <- walkthrough_p(n = 10, diff = 0.2, sd = 2)
+#' dat <- walkthrough_p(n = 10, diff = 0.2, sd = 2, showdata = TRUE)
 #' t.test(score ~ group, data = dat, var.equal = TRUE)
 #'
 #' # Run in pedant mode (= permutation test)
-#' dat <- walkthrough_p(n = 13, diff = 1, sd = 4, pedant = TRUE)
+#' dat <- walkthrough_p(n = 13, diff = 1, sd = 4, pedant = TRUE, showdata = TRUE)
 #' t.test(score ~ group, data = dat, var.equal = TRUE)
 #' }
 

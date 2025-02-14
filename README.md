@@ -159,7 +159,7 @@ lin_plot(my_parade)
 
 # Reveal position of actual diagnostic plot
 reveal(my_parade)
-#> The true data are in position 20.
+#> The true data are in position 14.
 ```
 
 Related functions are:
@@ -173,4 +173,4 @@ Related functions are:
 
 Accompanying article: Vanhove, Jan. 2018. [Checking the assumptions of
 your statistical model without getting
-paranoid](https://psyarxiv.com/zvawb/). Preprint on PsyArxiv.
+paranoid](https://doi.org/10.31234/osf.io/zvawb). Preprint on PsyArxiv.

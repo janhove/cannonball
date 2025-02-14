@@ -145,4 +145,4 @@ Related functions are:
 * `norm_hist()`: Check for non-normality of the residuals (histogram).
 * `parade_summary()`: Summarise residuals per cell (combination of unique predictor values).
 
-Accompanying article: Vanhove, Jan. 2018. [Checking the assumptions of your statistical model without getting paranoid](https://psyarxiv.com/zvawb/). Preprint on PsyArxiv.
+Accompanying article: Vanhove, Jan. 2018. [Checking the assumptions of your statistical model without getting paranoid](https://doi.org/10.31234/osf.io/zvawb). Preprint on PsyArxiv.

@@ -108,7 +108,7 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   writeLines(strwrap(my_text, 60))
   invisible(readline(prompt = paste0("(Press [enter] to continue.)")))
 
-  df <- df %>% arrange(covariate)
+  df <- df |> arrange(covariate)
   df$block <- rep(1:n, each = 2)
   df$block <- factor(df$block)
 
@@ -127,9 +127,9 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   writeLines(strwrap(my_text, 60))
   invisible(readline(prompt = paste0("(Press [enter] to continue.)")))
 
-  df <- df %>%
-    group_by(block) %>%
-    mutate(group = sample(c("control", "intervention"))) %>%
+  df <- df |>
+    group_by(block) |>
+    mutate(group = sample(c("control", "intervention"))) |>
     ungroup()
   df$group <- factor(df$group, levels = c("intervention", "control"))
 
@@ -242,10 +242,10 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   invisible(readline(prompt = paste0("(Press [enter] to continue.)")))
 
   # Compute differences
-  per_block <- df %>%
-    pivot_wider(id_cols = c("group", "block"),
+  per_block <- df |>
+    pivot_wider(id_cols = "block",
                 names_from = "group",
-                values_from = "score") %>%
+                values_from = "score") |>
     mutate(difference = intervention - control)
 
   p8 <- ggplot(per_block,
@@ -262,18 +262,18 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
 
   t_test <- t.test(per_block$difference)
 
-  sample_difference <- round(t_test$estimate, 2)
-  discrepancy <- abs(round(diff - t_test$estimate , 2))
+  sample_difference <- t_test$estimate
+  discrepancy <- abs(diff - t_test$estimate)
 
   if (pedant == FALSE) {
     p_value <- round(t_test$p.value, 3)
     my_text <- paste0(
-      "The mean difference score is ", sample_difference, " points (red line), ",
-      "so the difference between the true efficacy of the intervention and your estimate is ", discrepancy, " points.\n\n",
+      "The mean difference score is ", round(sample_difference, 2), " points (red line), ",
+      "so the difference between the true efficacy of the intervention and your estimate is ", round(discrepancy, 2), " points.\n\n",
       "If you run a one-sample t-test on these difference scores, the p-value is ", p_value, ".\n\n",
       "What this means is that EVEN IF the true efficacy of the intervention were 0 (= null hypothesis), ",
       "your study still had a chance of finding a difference of ",
-      abs(sample_difference), " points or more of ", p_value*100, "%.\n\n",
+      round(abs(sample_difference), 2), " points or more of ", p_value*100, "%.\n\n",
       "What this DOESN'T mean is that there is a chance of ", p_value*100, "% that the null hypothesis is true.\n\n",
       "An alternative way of analysing these data would be to run an analysis of variance (ANOVA) on the original data ",
       "that included both 'group' and 'block' as independent variables. The p-value obtained for the 'group' variable ",
@@ -286,14 +286,14 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
     p_value <- round(mean(abs(means_H0) >= abs(sample_difference)), 3)
 
     my_text <- paste0(
-      "The mean difference score is ", sample_difference, " points (red line), ",
-      "so the difference between the true efficacy of the intervention and your estimate is ", discrepancy, " points.\n\n",
+      "The mean difference score is ", round(sample_difference, 2), " points (red line), ",
+      "so the difference between the true efficacy of the intervention and your estimate is ", round(discrepancy, 2), " points.\n\n",
 
       "If you run a permutation test that takes into account the randomised block design on these data, ",
       "you'll obtain a p-value of ", p_value, ".\n\n",
       "What this means is that EVEN IF the true efficacy of the intervention were 0 (= null hypothesis), ",
       "your study still had a chance of finding a mean difference score of ",
-      abs(sample_difference), " points or more of ", p_value*100, "%.\n\n",
+      round(abs(sample_difference), 2), " points or more of ", p_value*100, "%.\n\n",
 
       "What this DOESN'T mean is that there is a chance of ", p_value*100, "% that the null hypothesis is true.\n\n",
 
@@ -315,7 +315,5 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
 
   writeLines(strwrap("\n\nRun this function again to see how randomness influences your results.", 60))
 
-  if (showdata == TRUE) {
-    return(df)
-  }
+  if (showdata) return(df)
 }

@@ -8,8 +8,8 @@ parade(model, full_data = NULL, size = 20)
 }
 \arguments{
 \item{model}{The name of the statistical model you want to diagnose.
-Currently only lm(), gam() (from the \pkg{mgcv} package) and lmer() (from the \pkg{lme4} package) models are supported.
-For the lmer() models, only residual diagnostics are supported; support for BLUP ('random effects') diagnostics
+Currently only \code{lm()}, \code{gam()} (from the \pkg{mgcv} package) and \code{lmer()} (from the \pkg{lme4} package) models are supported.
+For the \code{lmer()} models, only residual diagnostics are supported; support for BLUP ('random effects') diagnostics
 is still lacking.}
 
 \item{full_data}{By default, the output will only include variables that are part of the model.
@@ -37,8 +37,9 @@ panels of diagnostic plots (see examples).
 If you want to include transformed predictors in the model call (e.g., \code{log(x)}),
 transform the predictor before using it in the model call (see examples).
 
-This function relies on \code{\link[broom]{augment()}} in the \pkg{broom} package. Since \code{augment()}
+This function relies on \code{\link[broom]{augment}} in the \pkg{broom} package. Since \code{augment()}
 cannot handle model calls with \code{poly()} or \code{ns()}, \code{parade()} can't handle these, either.
+(For `lmer` models, the \code{\link[broom.mixed]{augment}} function in the \pkg{broom.mixed} package is used.)
 }
 
 \examples{

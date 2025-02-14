@@ -45,7 +45,7 @@ plot_r(r = 0.5, n = 35)
 
 For more info, see `?plot_r`.
 
-Accompanying blog post: [_What data patterns can lie behind a correlation coefficient?_](https://janhove.github.io/teaching/2016/11/21/what-correlations-look-like)
+Accompanying blog post: [_What data patterns can lie behind a correlation coefficient?_](https://janhove.github.io/posts/2016-11-21-what-correlations-look-like/)
 
 ### Walkthroughs
 
@@ -112,7 +112,7 @@ A covariate can also be created. For more info, see `?clustered_data`.
 
 Accompanying article: Vanhove, Jan. 2015. [Analyzing randomized controlled interventions: Three notes for applied linguists](http://doi.org/10.14746/ssllt.2015.5.1.7). _Studies in Second Language Learning and Teaching_ 5(1). 135–152. (See the [correction note](http://pressto.amu.edu.pl/index.php/ssllt/article/view/5827/5895) for this paper.)
 
-Accompanying blog post: [_Experiments with intact groups: spurious significance with improperly weighted t-tests_](https://janhove.github.io/design/2016/02/16/cluster-randomisation-correction).
+Accompanying blog post: [_Experiments with intact groups: spurious significance with improperly weighted t-tests_](https://janhove.github.io/posts/2016-02-16-cluster-randomisation-correction/).
 
 ### Check model assumptions graphically
 These functions may be helpful for helping you to judge

@@ -7,28 +7,28 @@
 plot_r(r = 0.6, n = 50, showdata = FALSE, plot = TRUE)
 }
 \arguments{
-\item{r}{The desired sample correlation coefficient. 
-This must be a number equal to or larger than -1 and smaller than 
+\item{r}{The desired sample correlation coefficient.
+This must be a number equal to or larger than -1 and smaller than
 (but not equal to) 1.}
 
 \item{n}{The number of data points per scatterplot.}
 
-\item{showdata}{Do you want to output a dataframe containing the plotted data (TRUE) 
-or not (FALSE, default)? You can also output the data for a 
-specific scatterplot by setting this parameter to the 
+\item{showdata}{Do you want to output a dataframe containing the plotted data (TRUE)
+or not (FALSE, default)? You can also output the data for a
+specific scatterplot by setting this parameter to the
 corresponding number (see examples).}
 
 \item{plot}{Do you want to draw the scatterplots (TRUE, default) or not (FALSE)?}
 }
 \description{
-This function illustrates the importance of looking at your data 
-             before moving to numeric methods. More specifically, it illustrates 
-             that a single correlation coefficient can correspond to wildly 
-             different patterns in the data. In all, 16 scatterplots with the 
+This function illustrates the importance of looking at your data
+             before moving to numeric methods. More specifically, it illustrates
+             that a single correlation coefficient can correspond to wildly
+             different patterns in the data. In all, 16 scatterplots with the
              same sample Pearson correlation coefficient are drawn.
 }
 \details{
-(1) The x/y data are drawn from a bivariate normal distribution. 
+(1) The x/y data are drawn from a bivariate normal distribution.
 Pearson's correlation coefficient can be useful in this situation.
 
 (2) The x data is uniformly distributed between 0 and 1; the y
@@ -54,14 +54,14 @@ coefficient.
 
 (6) Same as (5), except the y values are left-skewed about the regression line.
 
-(7) For increasing x values, the y values are ever more 
+(7) For increasing x values, the y values are ever more
 scattered about the regression line. Conceptually, Pearson's correlation
 coefficients underestimates how well you can anticipate a y-value
 for small x-values an overestimates how well you can do so for large
 x-values.
 
 
-(8) Same as (7), except the scatter about the regression line 
+(8) Same as (7), except the scatter about the regression line
 becomes smaller for larger x-values.
 
 (9) Pearson's correlation coefficient summarises the linear trend
@@ -74,7 +74,7 @@ strength of the relationship between the two variables.
 (11) There is a single positive outlier that exerts a pull on the
 correlation coefficient. In contrast to (3) through (6), this
 outlier is not caused by the same data-generating mechanism as the
-rest of the data, so it contaminates the estimated correlation 
+rest of the data, so it contaminates the estimated correlation
 coefficient. The regression line for the data without this outlier
 is plotted as a dashed red line; you'll often find that the true
 trend in the data go counter to the trend when the outlier isn't

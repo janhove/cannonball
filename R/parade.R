@@ -1,3 +1,4 @@
+#' @name parade
 #' @title Generate dataset for a diagnostic parade
 #'
 #' @description This function generates a parade (= \code{\link[nullabor]{lineup()}} in the \pkg{nullabor} package)
@@ -12,12 +13,13 @@
 #' If you want to include transformed predictors in the model call (e.g., \code{log(x)}),
 #' transform the predictor before using it in the model call (see examples).
 #'
-#' This function relies on \code{\link[broom]{augment()}} in the \pkg{broom} package. Since \code{augment()}
+#' This function relies on \code{\link[broom]{augment}} in the \pkg{broom} package. Since \code{augment()}
 #' cannot handle model calls with \code{poly()} or \code{ns()}, \code{parade()} can't handle these, either.
+#' (For `lmer` models, the \code{\link[broom.mixed]{augment}} function in the \pkg{broom.mixed} package is used.)
 #'
 #' @param model The name of the statistical model you want to diagnose.
-#'              Currently only lm(), gam() (from the \pkg{mgcv} package) and lmer() (from the \pkg{lme4} package) models are supported.
-#'              For the lmer() models, only residual diagnostics are supported; support for BLUP ('random effects') diagnostics
+#'              Currently only \code{lm()}, \code{gam()} (from the \pkg{mgcv} package) and \code{lmer()} (from the \pkg{lme4} package) models are supported.
+#'              For the \code{lmer()} models, only residual diagnostics are supported; support for BLUP ('random effects') diagnostics
 #'              is still lacking.
 #' @param full_data By default, the output will only include variables that are part of the model.
 #'                  If you want to include all the variables that are present in the dataframe
@@ -160,10 +162,10 @@ parade <- function(model, full_data = NULL, size = 20) {
 
   # Convert df to the long format. For now, ..sample 'size' contains
   # the true data.
-  df <- df %>%
-    gather(key = "..sample",
-           value = "outcome",
-           starts_with("..sample "))
+  df <- df |>
+    pivot_longer(starts_with("..sample "),
+                 names_to = "..sample",
+                 values_to = "outcome")
 
   # Rename the column with the true and simulated outcomes appropriately
   colnames(df)[ncol(df)] <- outcome_var
@@ -172,18 +174,18 @@ parade <- function(model, full_data = NULL, size = 20) {
   # For more complex models, it may save some time to not refit the
   # last model, but I'll leave that to someone with 1337 R skillz.
   if (class(model)[1] %in% c("lm", "gam")) {
-    df <- df %>%
-      group_by(..sample) %>%
+    df <- df |>
+      group_by(..sample) |>
       # Refit the original model to each sample (using update()),
       # output the fitted and residual values (using augment()),
       # and retain dfs variables (using data = .):
-      do(broom::augment(update(model, data = .), data = .)) %>%
+      do(broom::augment(update(model, data = .), data = .)) |>
       # Add transformed residuals
-      mutate(.abs_resid = abs(.resid)) %>%
-      mutate(.sqrt_abs_resid = sqrt(abs(.resid))) %>%
+      mutate(.abs_resid = abs(.resid)) |>
+      mutate(.sqrt_abs_resid = sqrt(abs(.resid))) |>
       # augment() outputs some additional info;
       # only retain variables, fitted values and residuals here
-      select("..sample", make.names(var_names), ".fitted", ".resid", ".abs_resid", ".sqrt_abs_resid") %>%
+      select("..sample", make.names(var_names), ".fitted", ".resid", ".abs_resid", ".sqrt_abs_resid") |>
       # small problem here: if I(...^2), this gets converted to I.disp.2.
       ungroup()
   }
@@ -193,26 +195,26 @@ parade <- function(model, full_data = NULL, size = 20) {
     # to the output.
     augment_lmer <- function(model, data) {
       model_refit <- update(model, data = data)
-      results <- broom::augment(model_refit, data = data)
+      results <- broom.mixed::augment(model_refit, data = data)
       results$convergence_error <- ifelse(is.null(model_refit@optinfo$conv$lme4$code), 0, 1)
       return(results)
     }
 
     # Only simulated datasets that didn't yield convergence errors are retained in the output.
-    df <- df %>%
-      group_by(..sample) %>%
+    df <- df |>
+      group_by(..sample) |>
       # Refit the original model to each sample,
       # output the fitted and residual values,
       # and retain dfs variables:
-      do(augment_lmer(model, data = .)) %>%
+      do(augment_lmer(model, data = .)) |>
       # Remove simulated datasets for which there was a convergence error
-      filter(convergence_error == 0) %>%
+      filter(convergence_error == 0) |>
       # Add transformed residuals
-      mutate(.abs_resid = abs(.resid)) %>%
-      mutate(.sqrt_abs_resid = sqrt(abs(.resid))) %>%
+      mutate(.abs_resid = abs(.resid)) |>
+      mutate(.sqrt_abs_resid = sqrt(abs(.resid))) |>
       # augment() outputs some additional info;
       # only retain variables, fitted values and residuals here
-      select("..sample", var_names, ".fitted", ".resid", ".abs_resid", ".sqrt_abs_resid") %>%
+      select("..sample", all_of(var_names), ".fitted", ".resid", ".abs_resid", ".sqrt_abs_resid") |>
       ungroup()
   }
 
@@ -226,8 +228,8 @@ parade <- function(model, full_data = NULL, size = 20) {
     .sample = c((1:size)[-pos], pos)
   )
   df_sample$.sample2 <- as.character(df_sample$.sample2)
-  df <- df %>%
-    left_join(df_sample, by = c("..sample" = ".sample2")) %>%
+  df <- df |>
+    left_join(df_sample, by = c("..sample" = ".sample2")) |>
     select(-..sample)
 
   # Add the true data's position as an attribute to the parade.
@@ -253,5 +255,5 @@ parade <- function(model, full_data = NULL, size = 20) {
   }
 
   # Output the parade
-  return(df)
+  df
 }

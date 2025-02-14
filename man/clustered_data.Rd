@@ -57,7 +57,7 @@ This function works as follows. The within-cluster variance for the participants
          the correlation between them. So if you want to have a correlation between pretest and posttest
          scores (without an intervention effect) of 0.7 and you want your pretest to be correlated
          at 0.9 to the pre-intervention latent skill levels (i.e., have a reliability of 0.9),
-         then solve sqrt(0.9*x) = 0.7 for x (x = 0.7^2/0.9 = 0.544).
+         then solve \eqn{\sqrt{0.9x} = 0.7} for \eqn{x} (\eqn{x = 0.7^2/0.9 = 0.544}).
 }
 \examples{
 # Generate and plot data with ICC = 0

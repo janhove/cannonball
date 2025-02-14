@@ -18,16 +18,16 @@ and residual summaries for each unique combination of the predictors that
 are actually in the model.}
 }
 \description{
-This function takes the output of the \code{\link{parade()}} function
+This function takes the output of the \code{\link{parade}} function
 and summarises the residuals (and the fitted values) for each unique
 combination of variables. This may be useful when checking the
 constant-variance assumption but the nature of the data is such that
 plotting the raw residuals will make them stand out from the distractor
 plots even if non-constant variance isn't much of a problem.
-Feed the output of this function to \code{\link{var_plot()}} to obtain a quick
+Feed the output of this function to \code{\link{var_plot}} to obtain a quick
 diagnostic plot for the constant-variance assumption.
 
-I think \code{parade_summary()} is mostly useful when dealing with fairly
+I think \code{parade_summary} is mostly useful when dealing with fairly
 discrete outcome data, so the function will throw a warning if the
 outcome data seem fairly continuous. (Arbitrarily when there are
 more than 20 unique outcome values.)

@@ -7,8 +7,8 @@
 reveal(parade)
 }
 \arguments{
-\item{parade}{The name of an object generated using the \code{\link{parade()}}
-or \code{\link{parade_summary()}} function.}
+\item{parade}{The name of an object generated using the \code{\link{parade}}
+or \code{\link{parade_summary}} function.}
 }
 \description{
 This function reveals the position of the true data in a parade.

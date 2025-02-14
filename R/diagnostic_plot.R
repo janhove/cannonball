@@ -1,4 +1,4 @@
-#' @name diagnostic_plots
+#' @name diagnostic_plot
 #' @aliases lin_plot
 #' @aliases var_plot
 #' @aliases norm_qq
@@ -26,8 +26,11 @@
 #' @param predictor The name of a variable in the parade object against which the residuals
 #' should be plotted. If this parameter isn't specified (default), the residuals will be plotted
 #' against their respective fitted values.
+#' @param rank Should the values along the x-axis be converted to ranks (\code{TRUE}) or not (\code{FALSE}, default)?
+#' When used, ties are broken randomly.
+#' This may be useful when the raw values are concentrated in certain regions along the x-axis, making it difficult to
+#' discern relevant patterns.
 #' @param bins How many bins should the histograms contain? Defaults to 30.
-#' @name diagnostic_plot
 #' @export
 #' @examples
 #' # A simple regression model
@@ -57,10 +60,9 @@
 #' lin_plot(my_parade)
 #' lin_plot(my_parade, predictor = "wt")
 #' lin_plot(my_parade, predictor = "qsec")
-
 #' @rdname diagnostic_plot
 #' @export
-lin_plot <- function(parade, predictor = NULL) {
+lin_plot <- function(parade, predictor = NULL, rank = FALSE) {
 
   if (is.null(attr(parade, "data_type"))) {
   	stop("The object you supplied doesn't seem to be a parade.")
@@ -84,21 +86,21 @@ lin_plot <- function(parade, predictor = NULL) {
   # If no predictor is specified, plot the residuals against the fitted values.
   if (is.null(predictor)) {
     p <- ggplot(parade,
-                aes(x = .fitted,
+                aes(x = rank_id(.fitted, .sample, rank),
                     y = .resid)) +
       geom_point(shape = 1) +
-      geom_smooth() +
+      geom_smooth(se = FALSE) +
       facet_wrap(~ .sample) +
-      xlab("fitted value") +
+      xlab(label_rank("fitted value", rank)) +
       ylab("residual")
   } else if (predictor %in% colnames(parade)) {
     p <- ggplot(parade,
-                aes_string(x = predictor,
-                           y = ".resid")) +
+                aes(x = rank_id(!!sym(predictor), .sample, rank),
+                    y = .resid)) +
       geom_point(shape = 1) +
-      geom_smooth() +
+      geom_smooth(se = FALSE) +
       facet_wrap(~ .sample) +
-      xlab(predictor) +
+      xlab(label_rank(predictor, rank)) +
       ylab("residual")
   } else {
     stop(paste0("The variable ", predictor, " doesn't occur in the parade. ",
@@ -111,7 +113,7 @@ lin_plot <- function(parade, predictor = NULL) {
 
 #' @rdname diagnostic_plot
 #' @export
-var_plot <- function(parade, predictor = NULL) {
+var_plot <- function(parade, predictor = NULL, rank = FALSE) {
 
   if (is.null(attr(parade, "data_type"))) {
   	stop("The object you supplied doesn't seem to be a parade.")
@@ -134,21 +136,21 @@ var_plot <- function(parade, predictor = NULL) {
     # If no predictor is specified, plot the residuals against the fitted values.
     if (is.null(predictor)) {
       p <- ggplot(parade,
-                  aes(x = .fitted,
+                  aes(x = rank_id(.fitted, .sample, rank),
                       y = .abs_resid)) +
         geom_point(shape = 1) +
-        geom_smooth() +
+        geom_smooth(se = FALSE) +
         facet_wrap(~ .sample) +
-        xlab("fitted value") +
+        xlab(label_rank("fitted value", rank)) +
         ylab("absolute value of residual")
     } else if (predictor %in% colnames(parade)) {
       p <- ggplot(parade,
-                  aes_string(x = predictor,
-                             y = ".abs_resid")) +
+                  aes(x = rank_id(!!sym(predictor), .sample, rank),
+                      y = .abs_resid)) +
         geom_point(shape = 1) +
-        geom_smooth() +
+        geom_smooth(se = FALSE) +
         facet_wrap(~ .sample) +
-        xlab(predictor) +
+        xlab(label_rank(predictor, rank)) +
         ylab("absolute value of residual")
     } else {
       stop(paste0("The variable ", predictor, " doesn't occur in the parade. ",
@@ -195,7 +197,7 @@ norm_qq <- function(parade) {
               aes(sample = .resid)) +
     stat_qq(shape = 1) +
     facet_wrap(~ .sample) +
-    xlab("theoretical quantile") +
+    xlab("theoretical standard normal quantile") +
     ylab("actual residual quantile")
 
   print(p)
@@ -231,4 +233,15 @@ norm_hist <- function(parade, bins = 30) {
     ylab("frequency")
 
   print(p)
+}
+
+# Rank or identity. but need to rank within sample...
+rank_id <- function(x, sample = .sample, rank = rank) {
+  if (!rank) return(x)
+  tapply_result <- tapply(x, sample, rank, ties.method = "random")
+  unlist(tapply_result, use.names = FALSE)
+}
+label_rank <- function(text, rank = rank) {
+  if (!rank) return(text)
+  paste0(text, " (ranks)")
 }

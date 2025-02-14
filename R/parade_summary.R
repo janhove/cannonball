@@ -1,15 +1,16 @@
+#' @name parade_summary
 #' @title Summarise residual information in a diagnostic parade per cell or per unique predictor value
 #'
-#' @description This function takes the output of the \code{\link{parade()}} function
+#' @description This function takes the output of the \code{\link{parade}} function
 #' and summarises the residuals (and the fitted values) for each unique
 #' combination of variables. This may be useful when checking the
 #' constant-variance assumption but the nature of the data is such that
 #' plotting the raw residuals will make them stand out from the distractor
 #' plots even if non-constant variance isn't much of a problem.
-#' Feed the output of this function to \code{\link{var_plot()}} to obtain a quick
+#' Feed the output of this function to \code{\link{var_plot}} to obtain a quick
 #' diagnostic plot for the constant-variance assumption.
 #'
-#' I think \code{parade_summary()} is mostly useful when dealing with fairly
+#' I think \code{parade_summary} is mostly useful when dealing with fairly
 #' discrete outcome data, so the function will throw a warning if the
 #' outcome data seem fairly continuous. (Arbitrarily when there are
 #' more than 20 unique outcome values.)
@@ -84,10 +85,10 @@ parade_summary <- function(parade, predictors_only = FALSE) {
 
   # Throw a warning if the outcome variable isn't very categorical.
   # (Arbitrarily defined as 20 or more unique observations.)
-  n_outcome_levels <- parade %>%
-    filter(.sample == attr(parade, "position")) %>%
-    select(attr(parade, "outcome_var")) %>%
-    distinct() %>%
+  n_outcome_levels <- parade |>
+    filter(.sample == attr(parade, "position")) |>
+    select(attr(parade, "outcome_var")) |>
+    distinct() |>
     nrow()
   if (n_outcome_levels > 19) {
     warning(paste0("The outcome variable (", attr(parade, "outcome_var"), ") contains ",
@@ -111,21 +112,21 @@ parade_summary <- function(parade, predictors_only = FALSE) {
                    "Are you sure you want to use this function?"))
   }
 
-  df_summary <- parade %>%
-    group_by(.sample, !!! rlang::syms(grouping_vars)) %>%
+  df_summary <- parade |>
+    group_by(.sample, !!! rlang::syms(grouping_vars)) |>
     summarise(.fitted = unique(.fitted),
               .mean_resid = mean(.resid, na.rm = TRUE),
               .mean_abs_resid = mean(.abs_resid, na.rm = TRUE),
               .mean_sqrt_abs_resid = mean(.sqrt_abs_resid, na.rm = TRUE),
               .var = var(.resid, na.rm = TRUE),
               .sd = sd(.resid, na.rm = TRUE),
-              .n = n()) %>%
-    ungroup() %>%
+              .n = n()) |>
+    ungroup() |>
     # Randomly reorder the summary data: this ensures that the mapping of the data to the
     # cells is arbitrary.
-    sample_frac(1, replace = FALSE) %>%
-    group_by(.sample) %>%
-    mutate(.cell = factor(row_number())) %>%
+    sample_frac(1, replace = FALSE) |>
+    group_by(.sample) |>
+    mutate(.cell = factor(row_number())) |>
     ungroup()
 
   # Throw a warning if any of the cells hardly contain any data.
@@ -145,5 +146,5 @@ parade_summary <- function(parade, predictors_only = FALSE) {
   # Specify that this parade contains the summary data, not the raw data
   attr(df_summary, "data_type") <- "summary"
 
-  return(df_summary)
+  df_summary
 }

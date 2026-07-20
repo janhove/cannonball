@@ -24,7 +24,7 @@ simulated datasets.}
 A tibble containing predictors, outcomes, fitted values and residuals for both the real dataset and simulated datasets.
 }
 \description{
-This function generates a parade (= \code{\link[nullabor]{lineup()}} in the \pkg{nullabor} package)
+This function generates a parade (= \code{\link[nullabor]{lineup}} in the \pkg{nullabor} package)
 that hides the observations, fitted values, and residuals of a statistical model you
 want to diagnose among the observations, fitted values, and residuals of a number similar models
 that were fitted on simulated outcome data. The sets of simulated outcome data are
@@ -39,7 +39,7 @@ transform the predictor before using it in the model call (see examples).
 
 This function relies on \code{\link[broom]{augment}} in the \pkg{broom} package. Since \code{augment()}
 cannot handle model calls with \code{poly()} or \code{ns()}, \code{parade()} can't handle these, either.
-(For `lmer` models, the \code{\link[broom.mixed]{augment}} function in the \pkg{broom.mixed} package is used.)
+(For \code{lmer} models, the \code{\link[broom.mixed]{augment}} function in the \pkg{broom.mixed} package is used.)
 }
 
 \examples{

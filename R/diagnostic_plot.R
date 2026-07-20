@@ -63,7 +63,6 @@
 #' @rdname diagnostic_plot
 #' @export
 lin_plot <- function(parade, predictor = NULL, rank = FALSE) {
-
   if (is.null(attr(parade, "data_type"))) {
   	stop("The object you supplied doesn't seem to be a parade.")
   }
@@ -75,33 +74,25 @@ lin_plot <- function(parade, predictor = NULL, rank = FALSE) {
 
   # If predictor is specified, make sure it occurs in parade.
 
-  # We'll need the tidyverse (magrittr, broom, dplyr etc.)
-  if (!requireNamespace("tidyverse", quietly = TRUE)) {
-    stop("The \"tidyverse\" package is needed for this function to work. Please install it.",
-         call. = FALSE)
-  }
-
-  require("tidyverse")
-
   # If no predictor is specified, plot the residuals against the fitted values.
   if (is.null(predictor)) {
-    p <- ggplot(parade,
-                aes(x = rank_id(.fitted, .sample, rank),
-                    y = .resid)) +
-      geom_point(shape = 1) +
-      geom_smooth(se = FALSE) +
-      facet_wrap(~ .sample) +
-      xlab(label_rank("fitted value", rank)) +
-      ylab("residual")
+    p <- ggplot2::ggplot(parade,
+                ggplot2::aes(x = rank_id(.fitted, .sample, rank),
+                             y = .resid)) +
+      ggplot2::geom_point(shape = 1) +
+      ggplot2::geom_smooth(se = FALSE) +
+      ggplot2::facet_wrap(~ .sample) +
+      ggplot2::xlab(label_rank("fitted value", rank)) +
+      ggplot2::ylab("residual")
   } else if (predictor %in% colnames(parade)) {
-    p <- ggplot(parade,
-                aes(x = rank_id(!!sym(predictor), .sample, rank),
+    p <- ggplot2::ggplot(parade,
+                ggplot2::aes(x = rank_id(!!rlang::sym(predictor), .sample, rank),
                     y = .resid)) +
-      geom_point(shape = 1) +
-      geom_smooth(se = FALSE) +
-      facet_wrap(~ .sample) +
-      xlab(label_rank(predictor, rank)) +
-      ylab("residual")
+      ggplot2::geom_point(shape = 1) +
+      ggplot2::geom_smooth(se = FALSE) +
+      ggplot2::facet_wrap(~ .sample) +
+      ggplot2::xlab(label_rank(predictor, rank)) +
+      ggplot2::ylab("residual")
   } else {
     stop(paste0("The variable ", predictor, " doesn't occur in the parade. ",
                 "Perhaps you need to supply the full original dataset to the parade() function? ",
@@ -124,49 +115,41 @@ var_plot <- function(parade, predictor = NULL, rank = FALSE) {
     stop("Make sure the parade was generated using parade() or resid_summary().")
   }
 
-  # We'll need the tidyverse (magrittr, broom, dplyr etc.)
-  if (!requireNamespace("tidyverse", quietly = TRUE)) {
-    stop("The \"tidyverse\" package is needed for this function to work. Please install it.",
-         call. = FALSE)
-  }
-
-  require("tidyverse")
-
   if (attr(parade, "data_type") == "raw") {
     # If no predictor is specified, plot the residuals against the fitted values.
     if (is.null(predictor)) {
-      p <- ggplot(parade,
-                  aes(x = rank_id(.fitted, .sample, rank),
+      p <- ggplot2::ggplot(parade,
+                  ggplot2::aes(x = rank_id(.fitted, .sample, rank),
                       y = .abs_resid)) +
-        geom_point(shape = 1) +
-        geom_smooth(se = FALSE) +
-        facet_wrap(~ .sample) +
-        xlab(label_rank("fitted value", rank)) +
-        ylab("absolute value of residual")
+        ggplot2::geom_point(shape = 1) +
+        ggplot2::geom_smooth(se = FALSE) +
+        ggplot2::facet_wrap(~ .sample) +
+        ggplot2::xlab(label_rank("fitted value", rank)) +
+        ggplot2::ylab("absolute value of residual")
     } else if (predictor %in% colnames(parade)) {
-      p <- ggplot(parade,
-                  aes(x = rank_id(!!sym(predictor), .sample, rank),
+      p <- ggplot2::ggplot(parade,
+                  ggplot2::aes(x = rank_id(!!rlang::sym(predictor), .sample, rank),
                       y = .abs_resid)) +
-        geom_point(shape = 1) +
-        geom_smooth(se = FALSE) +
-        facet_wrap(~ .sample) +
-        xlab(label_rank(predictor, rank)) +
-        ylab("absolute value of residual")
+        ggplot2::geom_point(shape = 1) +
+        ggplot2::geom_smooth(se = FALSE) +
+        ggplot2::facet_wrap(~ .sample) +
+        ggplot2::xlab(label_rank(predictor, rank)) +
+        ggplot2::ylab("absolute value of residual")
     } else {
       stop(paste0("The variable ", predictor, " doesn't occur in the parade. ",
                   "Perhaps you need to supply the full original dataset to the parade() function? ",
                   "(See the full_data argument under ?parade.)"))
     }
   } else if (attr(parade, "data_type") == "summary") {
-    p <- ggplot(parade,
-                aes(x = .cell,
+    p <- ggplot2::ggplot(parade,
+                ggplot2::aes(x = .cell,
                     y = .sd,
                     group = 1)) +
-      geom_point() +
-      geom_line() +
-      facet_wrap(~ .sample) +
-      xlab("Cell") +
-      ylab("Cell standard deviation")
+      ggplot2::geom_point() +
+      ggplot2::geom_line() +
+      ggplot2::facet_wrap(~ .sample) +
+      ggplot2::xlab("Cell") +
+      ggplot2::ylab("Cell standard deviation")
   }
 
   print(p)
@@ -175,7 +158,6 @@ var_plot <- function(parade, predictor = NULL, rank = FALSE) {
 #' @rdname diagnostic_plot
 #' @export
 norm_qq <- function(parade) {
-
   if (is.null(attr(parade, "data_type"))) {
   	stop("The object you supplied doesn't seem to be a parade.")
   }
@@ -185,20 +167,12 @@ norm_qq <- function(parade) {
     stop("When diagnosing normality, make sure the parade was generated using the parade() function.")
   }
 
-  # We'll need the tidyverse (magrittr, broom, dplyr etc.)
-  if (!requireNamespace("tidyverse", quietly = TRUE)) {
-    stop("The \"tidyverse\" package is needed for this function to work. Please install it.",
-         call. = FALSE)
-  }
-
-  require("tidyverse")
-
-  p <- ggplot(parade,
-              aes(sample = .resid)) +
-    stat_qq(shape = 1) +
-    facet_wrap(~ .sample) +
-    xlab("theoretical standard normal quantile") +
-    ylab("actual residual quantile")
+  p <- ggplot2::ggplot(parade,
+              ggplot2::aes(sample = .resid)) +
+    ggplot2::stat_qq(shape = 1) +
+    ggplot2::facet_wrap(~ .sample) +
+    ggplot2::xlab("theoretical standard normal quantile") +
+    ggplot2::ylab("actual residual quantile")
 
   print(p)
 }
@@ -216,21 +190,13 @@ norm_hist <- function(parade, bins = 30) {
     stop("When diagnosing normality, make sure the parade was generated using the parade() function.")
   }
 
-  # We'll need the tidyverse (magrittr, broom, dplyr etc.)
-  if (!requireNamespace("tidyverse", quietly = TRUE)) {
-    stop("The \"tidyverse\" package is needed for this function to work. Please install it.",
-         call. = FALSE)
-  }
-
-  require("tidyverse")
-
-  p <- ggplot(parade,
-              aes(x = .resid)) +
-    geom_histogram(bins = bins,
+  p <- ggplot2::ggplot(parade,
+              ggplot2::aes(x = .resid)) +
+    ggplot2::geom_histogram(bins = bins,
                    fill = "lightgrey", colour = "black") +
-    facet_wrap(~ .sample) +
-    xlab("residual") +
-    ylab("frequency")
+    ggplot2::facet_wrap(~ .sample) +
+    ggplot2::xlab("residual") +
+    ggplot2::ylab("frequency")
 
   print(p)
 }

@@ -37,7 +37,7 @@ cell seems low (arbitrarily fewer than 5 observations).
 
 The assignment of cells in the design to cell numbers in the parade
 summary is random. That is, one particular predictor combination
-may be associated with Cell 3 when running `parade_summary()` one time,
+may be associated with Cell 3 when running \code{parade_summary()} one time,
 but with Cell 1 when running it a second time. Within a given parade
 summary, however, the same cell number always refers to the same
 combination of predictor combinations.

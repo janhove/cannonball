@@ -20,7 +20,7 @@ or not (\code{FALSE}, default)?}
 }
 \description{
 This function produces a step-by-step demonstration
-             of a significance test for a two-group comparison.
+of a significance test for a two-group comparison.
 }
 \details{
 Data are generated from a normal distribution with the requested

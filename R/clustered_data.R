@@ -79,7 +79,7 @@
 #' ps <- replicate(1000,
 #'                {
 #'                  d <- clustered_data(ICC = 0.2)
-#'                  return(t.test(outcome ~ condition, data = d)$p.value)
+#'                  t.test(outcome ~ condition, data = d)$p.value
 #'                })
 #' hist(ps, breaks = seq(0, 1, 0.05))
 #' mean(ps < 0.05)

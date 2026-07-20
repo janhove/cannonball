@@ -110,14 +110,8 @@
 #' plot_r(r = 0.3, n = 12, showdata = 14, plot = FALSE)
 
 plot_r <- function(r = 0.6, n = 50, showdata = FALSE, plot = TRUE) {
-
-  # This function draws 16 scatterplots of bivariate
-  # data. The scatterplots look quite different, but
-  # their sample correlation coefficient are all identical.
-  # The take-home message is: plot your data.
-
   if (r >= 1 | r < -1) {
-    stop("r needs to be equal or larger than -1 but smaller than (and not equal to) 1.")
+    stop("r needs to be in (-1,1].")
   }
 
   # Function for scaling x and y data to [0, 1]-interval.
@@ -159,12 +153,12 @@ plot_r <- function(r = 0.6, n = 50, showdata = FALSE, plot = TRUE) {
   )
 
   # Case 1: Textbook case with normal x distribution and normally distributed residuals
-  x <- rnorm(n)           # specify x distribution
-  y <- rnorm(n)           # specify y distribution
-  y <- compute.y(x, y, r) # recompute y to fit with x and r
+  x <- rnorm(n)
+  y <- rnorm(n)
+  y <- compute.y(x, y, r)
   x <- scale01(x)
 
-  plot(                   # plot
+  plot(
     x,
     y,
     ylab = "",
@@ -172,8 +166,7 @@ plot_r <- function(r = 0.6, n = 50, showdata = FALSE, plot = TRUE) {
     main = paste("(1) Normal x, normal residuals", sep = "")
   )
   abline(lm(y ~ x), col = "dodgerblue3")
-  df1 <- data.frame(x, y, type = 1) # store x and y to data frame
-
+  df1 <- data.frame(x, y, type = 1)
 
   # Case 2: Textbook case with uniform x distribution and normally distributed residuals
   x <- runif(n, 0, 1)

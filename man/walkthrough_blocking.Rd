@@ -29,8 +29,8 @@ or not (\code{FALSE}, default)?}
 }
 \description{
 This function produces a step-by-step demonstration
-             of how researchers can 'block' on a continuous covariate
-             and how they can analyse the data of a randomised block design.
+of how researchers can 'block' on a continuous covariate
+and how they can analyse the data of a randomised block design.
 }
 \details{
 Data are generated from a normal distribution with the requested

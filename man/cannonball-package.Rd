@@ -9,7 +9,12 @@
 User-friendly functions for teaching introductory and intermediate statistics. Julian `Cannonball` Adderley is one of the author's favourite saxophonists and was a consummate jazz educator.
 }
 \author{
-\strong{Maintainer}: Jan Vanhove \email{jan.vanhove@unifr.ch}
+\strong{Maintainer}: Jan Vanhove \email{janvanhove@gmail.com}
+
+Authors:
+\itemize{
+  \item Jan Vanhove \email{janvanhove@gmail.com}
+}
 
 }
 \keyword{internal}

@@ -43,22 +43,6 @@
 #' }
 
 walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata = FALSE, pedant = FALSE) {
-  # We'll need the tidyverse (magrittr, broom, dplyr etc.)
-  if (!requireNamespace("tidyverse", quietly = TRUE)) {
-    stop("The \"tidyverse\" package is needed for this function to work. Please install it.",
-         call. = FALSE)
-  }
-
-  if (!requireNamespace("MASS", quietly = TRUE)) {
-    stop("The \"MASS\" package is needed for this function to work. Please install it.",
-         call. = FALSE)
-  }
-
-  if (pedant == TRUE && !requireNamespace("coin", quietly = TRUE)) {
-    stop("Please install the \"coin\" package if you want to run this function in pedantic mode :)",
-         call. = FALSE)
-  }
-
   if (abs(rho) > 1) {
     stop(paste0("Set the 'rho' parameter to a value between -1 and 1. It's currently set to ", rho, "."))
   }
@@ -70,8 +54,6 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   if (n <= 1) {
     stop(paste0("Set the 'n' parameter to a value larger than 1. It's currently set to ", n, "."))
   }
-
-  require("tidyverse")
 
   my_text <- paste0("You want to run a between-subjects two-group experiment to compare the efficacy of some intervention. Unbeknownst to you, the intervention yields a boost in performance of ", diff, " points relative to the control method. ",
                     n*2, " participants sign up for your study. ",
@@ -95,12 +77,12 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   break_plots <- seq(limit_plots[1], limit_plots[2], 1)
 
   # Dotchart with covariate scores and participants
-  p1 <- ggplot(df,
-               aes(x = covariate,
-                   y = reorder(subject, covariate))) +
-    geom_point() +
-    theme(legend.position = "none") +
-    ylab("subject")
+  p1 <- ggplot2::ggplot(df,
+      ggplot2::aes(x = covariate,
+                   y = stats::reorder(subject, covariate))) +
+    ggplot2::geom_point() +
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::ylab("subject")
 
   print(p1)
 
@@ -108,17 +90,17 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   writeLines(strwrap(my_text, 60))
   invisible(readline(prompt = paste0("(Press [enter] to continue.)")))
 
-  df <- df |> arrange(covariate)
+  df <- df |> dplyr::arrange(covariate)
   df$block <- rep(1:n, each = 2)
   df$block <- factor(df$block)
 
-  p2 <- ggplot(df,
-               aes(x = covariate,
-                   y = reorder(subject, covariate))) +
-    geom_point() +
-    theme(legend.position = "none") +
-    facet_grid(reorder(block, -covariate) ~ ., scales = "free_y") +
-    ylab("subject")
+  p2 <- ggplot2::ggplot(df,
+                        ggplot2::aes(x = covariate,
+                   y = stats::reorder(subject, covariate))) +
+    ggplot2::geom_point() +
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::facet_grid(stats::reorder(block, -covariate) ~ ., scales = "free_y") +
+    ggplot2::ylab("subject")
 
   print(p2)
 
@@ -128,21 +110,21 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   invisible(readline(prompt = paste0("(Press [enter] to continue.)")))
 
   df <- df |>
-    group_by(block) |>
-    mutate(group = sample(c("control", "intervention"))) |>
-    ungroup()
+    dplyr::group_by(block) |>
+    dplyr::mutate(group = sample(c("control", "intervention"))) |>
+    dplyr::ungroup()
   df$group <- factor(df$group, levels = c("intervention", "control"))
 
-  p3 <- ggplot(df,
-               aes(x = score,
-                   y = reorder(subject, covariate))) +
-    geom_point() +
-    theme(legend.position = "none") +
-    facet_grid(reorder(block, -covariate) ~ ., scales = "free_y") +
-    scale_x_continuous(limits = limit_plots,
+  p3 <- ggplot2::ggplot(df,
+                        ggplot2::aes(x = score,
+                   y = stats::reorder(subject, covariate))) +
+    ggplot2::geom_point() +
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::facet_grid(stats::reorder(block, -covariate) ~ ., scales = "free_y") +
+    ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
                        minor_breaks = NULL) +
-    ylab("subject")
+    ggplot2::ylab("subject")
 
   print(p3)
 
@@ -154,17 +136,17 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   writeLines(strwrap(my_text, 60))
   invisible(readline(prompt = paste0("(Press [enter] to continue.)")))
 
-  p4 <- ggplot(df,
-               aes(x = score,
-                   y = reorder(subject, covariate),
+  p4 <- ggplot2::ggplot(df,
+                        ggplot2::aes(x = score,
+                   y = stats::reorder(subject, covariate),
                    colour = group)) +
-    geom_point() +
-    theme(legend.position = "none") +
-    facet_grid(reorder(block, -covariate) ~ ., scales = "free_y") +
-    scale_x_continuous(limits = limit_plots,
+    ggplot2::geom_point() +
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::facet_grid(stats::reorder(block, -covariate) ~ ., scales = "free_y") +
+    ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
                        minor_breaks = NULL) +
-    ylab("subject")
+    ggplot2::ylab("subject")
 
   print(p4)
 
@@ -176,17 +158,17 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   writeLines(strwrap(my_text, 60))
   invisible(readline(prompt = paste0("(Press [enter] to continue.)")))
 
-  p5 <- ggplot(df,
-               aes(x = score,
-                   y = reorder(subject, -as.numeric(group)),
+  p5 <- ggplot2::ggplot(df,
+                        ggplot2::aes(x = score,
+                   y = stats::reorder(subject, -as.numeric(group)),
                    colour = group)) +
-    geom_point() +
-    facet_grid(reorder(block, -covariate) ~ ., scales = "free") +
-    ylab("subject") +
-    scale_x_continuous(limits = limit_plots,
+    ggplot2::geom_point() +
+    ggplot2::facet_grid(stats::reorder(block, -covariate) ~ ., scales = "free") +
+    ggplot2::ylab("subject") +
+    ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
                        minor_breaks = NULL) +
-    theme(legend.position = "none")
+    ggplot2::theme(legend.position = "none")
 
   print(p5)
 
@@ -198,23 +180,23 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
 
   df$score <- ifelse(df$group == "intervention", df$score + diff, df$score)
 
-  p6 <- ggplot(df,
-               aes(x = score,
-                   y = reorder(subject, -as.numeric(group)),
+  p6 <- ggplot2::ggplot(df,
+                        ggplot2::aes(x = score,
+                   y = stats::reorder(subject, -as.numeric(group)),
                    colour = group)) +
-    geom_point() +
-    geom_point(data = filter(df, group == "intervention"),
-               aes(x = score - diff),
+    ggplot2::geom_point() +
+    ggplot2::geom_point(data = dplyr::filter(df, group == "intervention"),
+                        ggplot2::aes(x = score - diff),
                shape = 1) +
-    geom_segment(data = filter(df, group == "intervention"),
-                 aes(x = score - diff, xend = score,
-                     yend = reorder(subject, score))) +
-    facet_grid(reorder(block, -covariate) ~ ., scales = "free") +
-    ylab("subject") +
-    scale_x_continuous(limits = limit_plots,
+    ggplot2::geom_segment(data = dplyr::filter(df, group == "intervention"),
+                 ggplot2::aes(x = score - diff, xend = score,
+                     yend = stats::reorder(subject, score))) +
+    ggplot2::facet_grid(stats::reorder(block, -covariate) ~ ., scales = "free") +
+    ggplot2::ylab("subject") +
+    ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
                        minor_breaks = NULL) +
-    theme(legend.position = "none")
+    ggplot2::theme(legend.position = "none")
 
   print(p6)
   my_text <- paste0("The participants in the intervention condition ",
@@ -222,17 +204,17 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   writeLines(strwrap(my_text, 60))
   invisible(readline(prompt = paste0("(Press [enter] to continue.)")))
 
-  p7 <- ggplot(df,
-               aes(x = score,
-                   y = reorder(subject, -as.numeric(group)),
+  p7 <- ggplot2::ggplot(df,
+                        ggplot2::aes(x = score,
+                   y = stats::reorder(subject, -as.numeric(group)),
                    colour = group)) +
-    geom_point() +
-    facet_grid(reorder(block, -covariate) ~ ., scales = "free") +
-    ylab("subject") +
-    scale_x_continuous(limits = limit_plots,
+    ggplot2::geom_point() +
+    ggplot2::facet_grid(stats::reorder(block, -covariate) ~ ., scales = "free") +
+    ggplot2::ylab("subject") +
+    ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
                        minor_breaks = NULL) +
-    theme(legend.position = "none")
+    ggplot2::theme(legend.position = "none")
 
   print(p7)
   my_text <- paste0("The data we actually observe in this experiment look as plotted. ",
@@ -243,20 +225,20 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
 
   # Compute differences
   per_block <- df |>
-    pivot_wider(id_cols = "block",
+    tidyr::pivot_wider(id_cols = "block",
                 names_from = "group",
                 values_from = "score") |>
-    mutate(difference = intervention - control)
+    dplyr::mutate(difference = intervention - control)
 
-  p8 <- ggplot(per_block,
-               aes(x = difference,
-                   y = reorder(block, difference))) +
-    geom_point() +
-    xlab("difference within each block") +
-    ylab("block") +
-    geom_vline(xintercept = 0, linetype = 2) +
-    geom_vline(xintercept = mean(per_block$difference), linetype = 2, colour = "red") +
-    theme(legend.position = "none")
+  p8 <- ggplot2::ggplot(per_block,
+                        ggplot2::aes(x = difference,
+                   y = stats::reorder(block, difference))) +
+                     ggplot2::geom_point() +
+      ggplot2::xlab("difference within each block") +
+      ggplot2::ylab("block") +
+      ggplot2::geom_vline(xintercept = 0, linetype = 2) +
+      ggplot2::geom_vline(xintercept = mean(per_block$difference), linetype = 2, colour = "red") +
+      ggplot2::theme(legend.position = "none")
 
   print(p8)
 
@@ -303,15 +285,6 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
   }
 
   writeLines(strwrap(my_text, 60))
-
-  # Technically, the t-test returns the probability
-  # that a t-statistic larger than the one observed
-  # would've been observed if only chance were at play.
-  # For ease of exposition, I use the t-test as an
-  # approximation to a permutation test. Switch on
-  # pedant mode if you want to run a permutation test.
-  # This permutation test works by switching the signs
-  # of the differences per block with probability 0.5.
 
   writeLines(strwrap("\n\nRun this function again to see how randomness influences your results.", 60))
 

@@ -31,33 +31,34 @@ any more alike than observations from different classes. Defaults to 0.15.}
 }
 \description{
 In educational settings, it's often impossible to randomly assign each individual
-             students to one of an experiment's conditions. Instead, all students in the same class
-             or school are assigned to the same condition. This type of random assignment is known as
-             cluster randomisation. Importantly, if you analyse the data from a cluster-randomised
-             experiment as though the participants were assigned randomly on an individual basis
-             (e.g., using a t-test on the individual outcomes), your Type-I error rate (false positive)
-             goes through the roof. To illustrate this, this function simulates data from a cluster-randomised
-             experiment. Covariate scores related to the outcome (referred to as pretest scores here)
-             can also be generated.
+students to one of an experiment's conditions. Instead, all students in the same class
+or school are assigned to the same condition. This type of random assignment is known as
+cluster randomisation. Importantly, if you analyse the data from a cluster-randomised
+experiment as though the participants were assigned randomly on an individual basis
+(e.g., using a t-test on the individual outcomes), your Type-I error rate (false positive)
+goes through the roof. To illustrate this, this function simulates data from a cluster-randomised
+experiment. Covariate scores related to the outcome (referred to as pretest scores here)
+can also be generated.
 }
 \details{
 This function works as follows. The within-cluster variance for the participants'
-         latent pre-intervention skill is set to 1. The within-cluster variance is then computed
-         on the basis of the desired ICC. Then, pre- and posttest measurements are generated
-         by adding random normal measurement error to the participants' latent pre-intervention skill.
-         The variance of the measurement error is computed on the basis of the desired correlation
-         between the pretest and pre-intervention outcome scores; in this case, the reliabilities
-         of the pretest and outcome scores are set to be equal.
-         If no correlation is specified, the measurement error is computed on the basis of the desired
-         pretest and posttest reliabilities.
-         Finally, a constant intervention effect is added to the outcome scores of the participants
-         in the intervention condition.
+latent pre-intervention skill is set to 1. The within-cluster variance is then computed
+on the basis of the desired ICC. Then, pre- and posttest measurements are generated
+by adding random normal measurement error to the participants' latent pre-intervention skill.
+The variance of the measurement error is computed on the basis of the desired correlation
+between the pretest and pre-intervention outcome scores; in this case, the reliabilities
+of the pretest and outcome scores are set to be equal.
+If no correlation is specified, the measurement error is computed on the basis of the desired
+pretest and posttest reliabilities.
+Finally, a constant intervention effect is added to the outcome scores of the participants
+in the intervention condition.
 
-         Note that the square root of the product of the pre- and posttest reliabilities yields
-         the correlation between them. So if you want to have a correlation between pretest and posttest
-         scores (without an intervention effect) of 0.7 and you want your pretest to be correlated
-         at 0.9 to the pre-intervention latent skill levels (i.e., have a reliability of 0.9),
-         then solve \eqn{\sqrt{0.9x} = 0.7} for \eqn{x} (\eqn{x = 0.7^2/0.9 = 0.544}).
+\if{html}{\out{<div class="sourceCode">}}\preformatted{     Note that the square root of the product of the pre- and posttest reliabilities yields
+     the correlation between them. So if you want to have a correlation between pretest and posttest
+     scores (without an intervention effect) of 0.7 and you want your pretest to be correlated
+     at 0.9 to the pre-intervention latent skill levels (i.e., have a reliability of 0.9),
+     then solve \eqn{\sqrt{0.9x} = 0.7} for \eqn{x} (\eqn{x = 0.7^2/0.9 = 0.544}).
+}\if{html}{\out{</div>}}
 }
 \examples{
 # Generate and plot data with ICC = 0
@@ -98,7 +99,7 @@ ggplot(data = d,
 ps <- replicate(1000,
                {
                  d <- clustered_data(ICC = 0.2)
-                 return(t.test(outcome ~ condition, data = d)$p.value)
+                 t.test(outcome ~ condition, data = d)$p.value
                })
 hist(ps, breaks = seq(0, 1, 0.05))
 mean(ps < 0.05)

@@ -22,10 +22,10 @@ corresponding number (see examples).}
 }
 \description{
 This function illustrates the importance of looking at your data
-             before moving to numeric methods. More specifically, it illustrates
-             that a single correlation coefficient can correspond to wildly
-             different patterns in the data. In all, 16 scatterplots with the
-             same sample Pearson correlation coefficient are drawn.
+before moving to numeric methods. More specifically, it illustrates
+that a single correlation coefficient can correspond to wildly
+different patterns in the data. In all, 16 scatterplots with the
+same sample Pearson correlation coefficient are drawn.
 }
 \details{
 (1) The x/y data are drawn from a bivariate normal distribution.
@@ -59,7 +59,6 @@ scattered about the regression line. Conceptually, Pearson's correlation
 coefficients underestimates how well you can anticipate a y-value
 for small x-values an overestimates how well you can do so for large
 x-values.
-
 
 (8) Same as (7), except the scatter about the regression line
 becomes smaller for larger x-values.

@@ -40,19 +40,6 @@
 #' }
 
 walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = FALSE) {
-  # We'll need the tidyverse (magrittr, broom, dplyr etc.)
-  if (!requireNamespace("tidyverse", quietly = TRUE)) {
-    stop("The \"tidyverse\" package is needed for this function to work. Please install it.",
-         call. = FALSE)
-  }
-
-  if (pedant == TRUE && !requireNamespace("coin", quietly = TRUE)) {
-    stop("Please install the \"coin\" package if you want to run this function in pedantic mode :)",
-         call. = FALSE)
-  }
-
-  require("tidyverse")
-
   my_text <- paste0("You want to run a simple between-subjects two-group experiment to compare the efficacy of some intervention. Unbeknownst to you, the intervention yields a boost in performance of ", diff, " points relative to the control group. ",
                     n*2, " participants sign up for your study.")
   writeLines(strwrap(my_text, 60))
@@ -60,9 +47,9 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
   invisible(readline(prompt ="(Press [enter] to continue.)"))
 
   # Generate dataset
-  df <- data.frame(group = rep(c("intervention", "control"), times = n),
-                   score = c(rnorm(n, 10, sd = sd),
-                             rnorm(n, 10, sd = sd)))
+  df <- data.frame(
+    group = rep(c("intervention", "control"), times = n),
+    score = c(rnorm(n, 10, sd = sd), rnorm(n, 10, sd = sd)))
   df$group <- factor(df$group)
   df$group <- relevel(df$group, "intervention")
   df <- df[sample(1:(2*n)), ]
@@ -72,15 +59,14 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
   break_plots <- seq(limit_plots[1], limit_plots[2], 1)
 
   # Dotchart with scores and participants
-  p1 <- ggplot(df,
-               aes(x = score,
-                   y = reorder(subject, score))) +
-    geom_point() +
-    scale_x_continuous(limits = limit_plots,
+  p1 <- ggplot2::ggplot(df,
+      ggplot2::aes(x = score, y = reorder(subject, score))) +
+    ggplot2::geom_point() +
+    ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
                        minor_breaks = NULL) +
-    theme(legend.position = "none") +
-    ylab("subject")
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::ylab("subject")
 
   print(p1)
 
@@ -89,17 +75,17 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
 
   invisible(readline(prompt = paste0("(Press [enter] to continue.)")))
 
-  p2 <- ggplot(df,
-               aes(x = score,
+  p2 <- ggplot2::ggplot(df,
+                        ggplot2::aes(x = score,
                    y = reorder(subject, score),
                    colour = group)) +
-    geom_point() +
-    facet_grid(group ~ ., scales = "free") +
-    ylab("subject") +
-    scale_x_continuous(limits = limit_plots,
+    ggplot2::geom_point() +
+    ggplot2::facet_grid(group ~ ., scales = "free") +
+    ggplot2::ylab("subject") +
+    ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
                        minor_breaks = NULL) +
-    theme(legend.position = "none")
+    ggplot2::theme(legend.position = "none")
 
   print(p2)
 
@@ -108,23 +94,23 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
   invisible(readline(prompt ="(Press [enter] to continue.)"))
 
   df$score <- ifelse(df$group == "intervention", df$score + diff, df$score)
-  p2b <- ggplot(df,
-                aes(x = score,
+  p2b <- ggplot2::ggplot(df,
+                         ggplot2::aes(x = score,
                     y = reorder(subject, score),
                     colour = group)) +
-    geom_point() +
-    geom_point(data = filter(df, group == "intervention"),
-               aes(x = score - diff),
+    ggplot2::geom_point() +
+    ggplot2::geom_point(data = filter(df, group == "intervention"),
+               ggplot2::aes(x = score - diff),
                shape = 1) +
-    geom_segment(data = filter(df, group == "intervention"),
-                 aes(x = score - diff, xend = score,
+    ggplot2::geom_segment(data = filter(df, group == "intervention"),
+                 ggplot2::aes(x = score - diff, xend = score,
                      yend = reorder(subject, score))) +
-    facet_grid(group ~ ., scales = "free") +
-    ylab("subject") +
-    scale_x_continuous(limits = limit_plots,
+    ggplot2::facet_grid(group ~ ., scales = "free") +
+    ggplot2::ylab("subject") +
+    ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
                        minor_breaks = NULL) +
-    theme(legend.position = "none")
+    ggplot2::theme(legend.position = "none")
 
   print(p2b)
 
@@ -143,21 +129,21 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
     p_value <- round(coin::pvalue(coin::independence_test(score ~ group, data = df, distribution = "approximate")), 3)
   }
 
-  p3 <- ggplot(df,
-                aes(x = score,
+  p3 <- ggplot2::ggplot(df,
+                        ggplot2::aes(x = score,
                     y = reorder(subject, score),
                     colour = group)) +
-    geom_point() +
-    facet_grid(group ~ ., scales = "free") +
-    geom_vline(data = filter(df, group == "intervention"),
-               aes(xintercept = mean(score)), linetype = 2) +
-    geom_vline(data = filter(df, group == "control"),
-               aes(xintercept = mean(score)), linetype = 2) +
-    ylab("subject") +
-    scale_x_continuous(limits = limit_plots,
+    ggplot2::geom_point() +
+    ggplot2::facet_grid(group ~ ., scales = "free") +
+    ggplot2::geom_vline(data = filter(df, group == "intervention"),
+                        ggplot2::aes(xintercept = mean(score)), linetype = 2) +
+    ggplot2::geom_vline(data = filter(df, group == "control"),
+                        ggplot2::aes(xintercept = mean(score)), linetype = 2) +
+    ggplot2::ylab("subject") +
+    ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
                        minor_breaks = NULL) +
-    theme(legend.position = "none")
+    ggplot2::theme(legend.position = "none")
 
   print(p3)
 
@@ -173,16 +159,9 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
                     "What it DOESN'T mean is that the null hypothesis has a ", p_value*100, "% chance of being correct!")
   writeLines(strwrap(my_text, 60))
 
-  # Technically, the t-test returns the probability
-  # that a t-statistic larger than the one observed
-  # would've been observed if only chance were at play.
-  # For ease of exposition, I use the t-test as an
-  # approximation to a permutation test. Switch on
-  # pedant mode if you want to run a permutation test.
-
   writeLines(strwrap("\n\nRun this function again so see how randomness influences your results.", 60))
 
-  if (showdata == TRUE) {
-    return(df)
+  if (showdata) {
+    df
   }
 }

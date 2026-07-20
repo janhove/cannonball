@@ -1,0 +1,82 @@
+# Walkthrough blocking on a covariate
+
+This function produces a step-by-step demonstration of how researchers
+can 'block' on a continuous covariate and how they can analyse the data
+of a randomised block design.
+
+## Usage
+
+``` r
+walkthrough_blocking(
+  n = 10,
+  diff = 0,
+  sd = 1,
+  rho = 0.8,
+  showdata = FALSE,
+  pedant = FALSE
+)
+```
+
+## Arguments
+
+- n:
+
+  The number of data points per group.
+
+- diff:
+
+  The boost that participants in the intervention group receive.
+
+- sd:
+
+  The standard deviation of the normal distributions from which the data
+  are drawn.
+
+- rho:
+
+  The correlation between the covariate and the outcome
+  (pre-intervention) in the population.
+
+- showdata:
+
+  Do you want to output a dataframe containing the plotted data (`TRUE`)
+  or not (`FALSE`, default)?
+
+- pedant:
+
+  Do you want to run the significance test in pedant mode (`TRUE`) or
+  not (`FALSE`, default)? See Details.
+
+## Details
+
+Data are generated from a normal distribution with the requested
+standard deviation; a covariate is also generated. The data points are
+then grouped in pairs based on their covariate scores. Within each pair,
+the data points are then randomly assigned to the control or
+intervention group. Data points in the intervention group receive a
+boost as specified by 'diff'. Finally, a significance test is ran on the
+data.
+
+By default, the significance test is a two-sample Student's t-test.
+Technically, the p-value from this test is the probability that a
+t-statistic larger than the one observed would've been observed if only
+chance were at play, but the walkthrough text says that is the
+probability that a mean difference larger than the one observed would've
+been observed if only chance were at play. That is, I use the t-test as
+an approximation to a permutation test. Switch on pedant mode if you
+want to run a permutation test.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8, pedant = FALSE)
+
+# Save data and double check results
+dat <- walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8, showdata = TRUE)
+anova(lm(score ~ factor(block) + group, data = dat))
+
+# Run in pedant mode (= permutation test)
+walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8, pedant = TRUE)
+} # }
+```

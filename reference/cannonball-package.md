@@ -4,6 +4,12 @@ User-friendly functions for teaching introductory and intermediate
 statistics. Julian \`Cannonball\` Adderley is one of the author's
 favourite saxophonists and was a consummate jazz educator.
 
+## See also
+
+Useful links:
+
+- <https://janhove.github.io/cannonball/>
+
 ## Author
 
 **Maintainer**: Jan Vanhove <janvanhove@gmail.com>

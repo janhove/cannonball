@@ -7,39 +7,26 @@
 #' @param sd The standard deviation of the normal distributions from which the data are drawn.
 #' @param showdata Do you want to output a dataframe containing the plotted data (\code{TRUE})
 #'                 or not (\code{FALSE}, default)?
-#' @param pedant Do you want to run the significance test in pedant mode (\code{TRUE}) or not (\code{FALSE}, default)? See Details.
+#' @param M `NULL` (default) when using exhaustive randomisation testing; else set to the number of Monte Carlo runs desired.
 #' @keywords significance test, p-value
 #' @details Data are generated from a normal distribution with the requested
 #' standard deviation. Then, the data points are randomly assigned to two
-#' equal-sized groups. Data points in the intervention group receive a boost
+#' equal-sized groups. Data points in the intervention group receive a uniform boost
 #' as specified by \code{diff}. Finally, a significance test is run on the data.
-#'
-#' By default, the significance test is a two-sample Student's t-test.
-#' Technically, the p-value from this test is the probability
-#' that a t-statistic larger than the one observed
-#' would've been observed if only chance were at play, but
-#' the walkthrough text says that is the probability that
-#' a mean difference larger than the one observed would've
-#' been observed if only chance were at play. That is,
-#' I use the t-test as an
-#' approximation to a permutation test.
-#' Switch on pedant mode if you want to run a permutation test.
+#' This significance test is a randomisation test using the mean difference as
+#' the test statistic. The p-value reported is a two-sided one.
 #'
 #' @export
 #' @examples
 #' \dontrun{
 #' walkthrough_p(n = 12, diff = 0.2, sd = 1.3)
 #'
-#' # Save data and double check results
+#' # Save data and double check results using Welch t-test
 #' dat <- walkthrough_p(n = 10, diff = 0.2, sd = 2, showdata = TRUE)
-#' t.test(score ~ group, data = dat, var.equal = TRUE)
-#'
-#' # Run in pedant mode (= permutation test)
-#' dat <- walkthrough_p(n = 13, diff = 1, sd = 4, pedant = TRUE, showdata = TRUE)
-#' t.test(score ~ group, data = dat, var.equal = TRUE)
+#' t.test(score ~ group, data = dat)
 #' }
 
-walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = FALSE) {
+walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, M = NULL) {
   my_text <- paste0("You want to run a simple between-subjects two-group experiment to compare the efficacy of some intervention. Unbeknownst to you, the intervention yields a boost in performance of ", diff, " points relative to the control group. ",
                     n*2, " participants sign up for your study.")
   writeLines(strwrap(my_text, 60))
@@ -60,7 +47,7 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
 
   # Dotchart with scores and participants
   p1 <- ggplot2::ggplot(df,
-      ggplot2::aes(x = score, y = reorder(subject, score))) +
+                        ggplot2::aes(x = score, y = reorder(subject, score))) +
     ggplot2::geom_point() +
     ggplot2::scale_x_continuous(limits = limit_plots,
                        breaks = break_plots,
@@ -99,10 +86,10 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
                     y = reorder(subject, score),
                     colour = group)) +
     ggplot2::geom_point() +
-    ggplot2::geom_point(data = filter(df, group == "intervention"),
+    ggplot2::geom_point(data = dplyr::filter(df, group == "intervention"),
                ggplot2::aes(x = score - diff),
                shape = 1) +
-    ggplot2::geom_segment(data = filter(df, group == "intervention"),
+    ggplot2::geom_segment(data = dplyr::filter(df, group == "intervention"),
                  ggplot2::aes(x = score - diff, xend = score,
                      yend = reorder(subject, score))) +
     ggplot2::facet_grid(group ~ ., scales = "free") +
@@ -118,16 +105,16 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
   writeLines(strwrap(my_text, 60))
   invisible(readline(prompt ="(Press [enter] to continue.)"))
 
-  t_test <- t.test(score ~ group, data = df, var.equal = TRUE)
+  treatment_idx <- which(df$group == "intervention")
+  sample_difference <- mean(df$score[treatment_idx]) - mean(df$score[-treatment_idx])
+  discrepancy <- abs(round(diff - sample_difference , 3))
+  sample_difference <- round(sample_difference, 3)
 
-  sample_difference <- round(-diff(t_test$estimate), 2)
-  discrepancy <- abs(round(diff - -diff(t_test$estimate) , 2))
-
-  if (pedant == FALSE) {
-    p_value <- round(t_test$p.value, 3)
-  } else if (pedant == TRUE) {
-    p_value <- round(coin::pvalue(coin::independence_test(score ~ group, data = df, distribution = "approximate")), 3)
-  }
+  p_value <- rand_test(df$score, treatment_idx,
+                       statistic = mean_diff, plot = FALSE,
+                       exact = is.null(M),
+                       M = M)[[3]]
+  p_value <- round(p_value, 3)
 
   p3 <- ggplot2::ggplot(df,
                         ggplot2::aes(x = score,
@@ -135,9 +122,9 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
                     colour = group)) +
     ggplot2::geom_point() +
     ggplot2::facet_grid(group ~ ., scales = "free") +
-    ggplot2::geom_vline(data = filter(df, group == "intervention"),
+    ggplot2::geom_vline(data = dplyr::filter(df, group == "intervention"),
                         ggplot2::aes(xintercept = mean(score)), linetype = 2) +
-    ggplot2::geom_vline(data = filter(df, group == "control"),
+    ggplot2::geom_vline(data = dplyr::filter(df, group == "control"),
                         ggplot2::aes(xintercept = mean(score)), linetype = 2) +
     ggplot2::ylab("subject") +
     ggplot2::scale_x_continuous(limits = limit_plots,
@@ -150,9 +137,9 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, pedant = F
   my_text <- paste0("The mean difference between the two groups is ",
                     sample_difference, " points, ",
                     "so the difference between the true efficacy of the intervention and your estimate is ", discrepancy, " points.\n\n",
-                    "When you run a significance test on these data, the p-value is ", p_value, ".\n\n",
+                    "When you run a randomisation test on these data, the p-value is ", p_value, ".\n\n",
                     "What this means is that EVEN IF the true ",
-                    "efficacy of the intervention were 0 (= null hypothesis), ",
+                    "efficacy of the intervention were 0 for all units (= strong null hypothesis), ",
                     "your study still had a chance of finding ",
                     "a difference of ", abs(sample_difference), " points or more ",
                     "of ", p_value*100, "%.\n\n",

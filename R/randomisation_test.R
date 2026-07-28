@@ -78,7 +78,7 @@ exh_rerand_pval <- function(
     xlab
 ) {
   if (choose(length(outcome), length(treatment_idx)) > 2e5) {
-    warning("Large number of rerandomisations. Consider using Monte Carlo approach.")
+    message("Large number of rerandomisations. Consider using Monte Carlo approach.")
   }
   obs_stat <- statistic(outcome, treatment_idx)
 

@@ -10,7 +10,7 @@ walkthrough_blocking(
   sd = 1,
   rho = 0.8,
   showdata = FALSE,
-  pedant = FALSE
+  M = NULL
 )
 }
 \arguments{
@@ -25,7 +25,7 @@ walkthrough_blocking(
 \item{showdata}{Do you want to output a dataframe containing the plotted data (\code{TRUE})
 or not (\code{FALSE}, default)?}
 
-\item{pedant}{Do you want to run the significance test in pedant mode (\code{TRUE}) or not (\code{FALSE}, default)? See Details.}
+\item{M}{\code{NULL} (default) when using exhaustive randomisation testing; else set to the number of Monte Carlo runs desired.}
 }
 \description{
 This function produces a step-by-step demonstration
@@ -39,28 +39,16 @@ grouped in pairs based on their covariate scores. Within each pair, the data poi
 are then randomly assigned to the control or intervention group.
 Data points in the intervention group receive a boost
 as specified by 'diff'. Finally, a significance test is ran on the data.
-
-By default, the significance test is a two-sample Student's t-test.
-Technically, the p-value from this test is the probability
-that a t-statistic larger than the one observed
-would've been observed if only chance were at play, but
-the walkthrough text says that is the probability that
-a mean difference larger than the one observed would've
-been observed if only chance were at play. That is,
-I use the t-test as an
-approximation to a permutation test.
-Switch on pedant mode if you want to run a permutation test.
+This significance test is a randomisation test using the mean difference as
+the test statistic. The p-value reported is a two-sided one.
 }
 \examples{
 \dontrun{
-walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8, pedant = FALSE)
+walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8)
 
 # Save data and double check results
 dat <- walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8, showdata = TRUE)
 anova(lm(score ~ factor(block) + group, data = dat))
-
-# Run in pedant mode (= permutation test)
-walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8, pedant = TRUE)
 }
 }
 \keyword{blocking,}

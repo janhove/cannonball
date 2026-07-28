@@ -9,7 +9,7 @@
 #' @param rho The correlation between the covariate and the outcome (pre-intervention) in the population.
 #' @param showdata Do you want to output a dataframe containing the plotted data (\code{TRUE})
 #'                 or not (\code{FALSE}, default)?
-#' @param pedant Do you want to run the significance test in pedant mode (\code{TRUE}) or not (\code{FALSE}, default)? See Details.
+#' @param M `NULL` (default) when using exhaustive randomisation testing; else set to the number of Monte Carlo runs desired.
 #' @keywords significance test, p-value, blocking, control variable
 #' @details Data are generated from a normal distribution with the requested
 #' standard deviation; a covariate is also generated. The data points are then
@@ -17,32 +17,20 @@
 #' are then randomly assigned to the control or intervention group.
 #' Data points in the intervention group receive a boost
 #' as specified by 'diff'. Finally, a significance test is ran on the data.
-#'
-#' By default, the significance test is a two-sample Student's t-test.
-#' Technically, the p-value from this test is the probability
-#' that a t-statistic larger than the one observed
-#' would've been observed if only chance were at play, but
-#' the walkthrough text says that is the probability that
-#' a mean difference larger than the one observed would've
-#' been observed if only chance were at play. That is,
-#' I use the t-test as an
-#' approximation to a permutation test.
-#' Switch on pedant mode if you want to run a permutation test.
+#' This significance test is a randomisation test using the mean difference as
+#' the test statistic. The p-value reported is a two-sided one.
 #'
 #' @export
 #' @examples
 #' \dontrun{
-#' walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8, pedant = FALSE)
+#' walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8)
 #'
 #' # Save data and double check results
 #' dat <- walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8, showdata = TRUE)
 #' anova(lm(score ~ factor(block) + group, data = dat))
-#'
-#' # Run in pedant mode (= permutation test)
-#' walkthrough_blocking(n = 12, diff = 0.2, sd = 1.3, rho = 0.8, pedant = TRUE)
 #' }
 
-walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata = FALSE, pedant = FALSE) {
+walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata = FALSE, M = NULL) {
   if (abs(rho) > 1) {
     stop(paste0("Set the 'rho' parameter to a value between -1 and 1. It's currently set to ", rho, "."))
   }
@@ -242,47 +230,34 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
 
   print(p8)
 
-  t_test <- t.test(per_block$difference)
+  treatment_idx <- which(df$group == "intervention")
+  p_value <- rand_test(df$score, treatment_idx, df$block,
+                       statistic = mean_diff, plot = FALSE,
+                       exact = is.null(M), M = M)[[3]]
+  p_value <- round(p_value, 3)
 
-  sample_difference <- t_test$estimate
-  discrepancy <- abs(diff - t_test$estimate)
+  wrong_p_value <- rand_test(df$score, treatment_idx, NULL,
+                             statistic = mean_diff, plot = FALSE,
+                             exact = FALSE, M = 10000)[[3]]
+  wrong_p_value <- round(wrong_p_value, 3)
 
-  if (pedant == FALSE) {
-    p_value <- round(t_test$p.value, 3)
-    my_text <- paste0(
-      "The mean difference score is ", round(sample_difference, 2), " points (red line), ",
-      "so the difference between the true efficacy of the intervention and your estimate is ", round(discrepancy, 2), " points.\n\n",
-      "If you run a one-sample t-test on these difference scores, the p-value is ", p_value, ".\n\n",
+  sample_difference <- mean(df$score[treatment_idx]) - mean(df$score[-treatment_idx])
+  discrepancy <- abs(diff - sample_difference)
+  discrepancy <- round(discrepancy, 3)
+  sample_difference <- round(sample_difference, 3)
+
+  my_text <- paste0(
+      "The mean difference score is ", sample_difference, " points (red line), ",
+      "so the difference between the true efficacy of the intervention and your estimate is ", discrepancy, " points.\n\n",
+      "If you run a randomisation test on these data while taking into account the blocking, the p-value is ", p_value, ".\n\n",
       "What this means is that EVEN IF the true efficacy of the intervention were 0 (= null hypothesis), ",
       "your study still had a chance of finding a difference of ",
-      round(abs(sample_difference), 2), " points or more of ", p_value*100, "%.\n\n",
+      abs(sample_difference), " points or more of ", p_value*100, "%.\n\n",
       "What this DOESN'T mean is that there is a chance of ", p_value*100, "% that the null hypothesis is true.\n\n",
-      "An alternative way of analysing these data would be to run an analysis of variance (ANOVA) on the original data ",
-      "that included both 'group' and 'block' as independent variables. The p-value obtained for the 'group' variable ",
-      "will be identical to the one obtained using the method outlined above.\n\n",
       "Had you analysed these same data but without taking the 'blocks' into account, you would have ",
-      "obtained an incorrect p-value of ", round(t.test(score ~ group, data = df, var.equal = TRUE)$p.value, 3), "."
-    )
-  } else if (pedant == TRUE) {
-    means_H0 <- replicate(20000, mean(per_block$difference * sample(c(-1, 1), n, replace = TRUE)))
-    p_value <- round(mean(abs(means_H0) >= abs(sample_difference)), 3)
+      "obtained an incorrect p-value of ", wrong_p_value, "."
+  )
 
-    my_text <- paste0(
-      "The mean difference score is ", round(sample_difference, 2), " points (red line), ",
-      "so the difference between the true efficacy of the intervention and your estimate is ", round(discrepancy, 2), " points.\n\n",
-
-      "If you run a permutation test that takes into account the randomised block design on these data, ",
-      "you'll obtain a p-value of ", p_value, ".\n\n",
-      "What this means is that EVEN IF the true efficacy of the intervention were 0 (= null hypothesis), ",
-      "your study still had a chance of finding a mean difference score of ",
-      round(abs(sample_difference), 2), " points or more of ", p_value*100, "%.\n\n",
-
-      "What this DOESN'T mean is that there is a chance of ", p_value*100, "% that the null hypothesis is true.\n\n",
-
-      "Had you analysed these same data but without taking the 'blocks' into account, you would have ",
-      "obtained an incorrect p-value of ", round(coin::pvalue(coin::independence_test(score ~ group, data = df, distribution = "approximate")), 3), "."
-    )
-  }
 
   writeLines(strwrap(my_text, 60))
 

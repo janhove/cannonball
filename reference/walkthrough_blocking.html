@@ -49,7 +49,7 @@ and how they can analyse the data of a randomised block design.</p>
 <span>  sd <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  rho <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>  showdata <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  pedant <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  M <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -78,8 +78,8 @@ and how they can analyse the data of a randomised block design.</p>
 or not (<code>FALSE</code>, default)?</p></dd>
 
 
-<dt id="arg-pedant">pedant<a class="anchor" aria-label="anchor" href="#arg-pedant"></a></dt>
-<dd><p>Do you want to run the significance test in pedant mode (<code>TRUE</code>) or not (<code>FALSE</code>, default)? See Details.</p></dd>
+<dt id="arg-m">M<a class="anchor" aria-label="anchor" href="#arg-m"></a></dt>
+<dd><p><code>NULL</code> (default) when using exhaustive randomisation testing; else set to the number of Monte Carlo runs desired.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -89,30 +89,19 @@ standard deviation; a covariate is also generated. The data points are then
 grouped in pairs based on their covariate scores. Within each pair, the data points
 are then randomly assigned to the control or intervention group.
 Data points in the intervention group receive a boost
-as specified by 'diff'. Finally, a significance test is ran on the data.</p>
-<p>By default, the significance test is a two-sample Student's t-test.
-Technically, the p-value from this test is the probability
-that a t-statistic larger than the one observed
-would've been observed if only chance were at play, but
-the walkthrough text says that is the probability that
-a mean difference larger than the one observed would've
-been observed if only chance were at play. That is,
-I use the t-test as an
-approximation to a permutation test.
-Switch on pedant mode if you want to run a permutation test.</p>
+as specified by 'diff'. Finally, a significance test is ran on the data.
+This significance test is a randomisation test using the mean difference as
+the test statistic. The p-value reported is a two-sided one.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="fu">walkthrough_blocking</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">12</span>, diff <span class="op">=</span> <span class="fl">0.2</span>, sd <span class="op">=</span> <span class="fl">1.3</span>, rho <span class="op">=</span> <span class="fl">0.8</span>, pedant <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">walkthrough_blocking</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">12</span>, diff <span class="op">=</span> <span class="fl">0.2</span>, sd <span class="op">=</span> <span class="fl">1.3</span>, rho <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Save data and double check results</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu">walkthrough_blocking</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">12</span>, diff <span class="op">=</span> <span class="fl">0.2</span>, sd <span class="op">=</span> <span class="fl">1.3</span>, rho <span class="op">=</span> <span class="fl">0.8</span>, showdata <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">score</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">block</span><span class="op">)</span> <span class="op">+</span> <span class="va">group</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Run in pedant mode (= permutation test)</span></span></span>
-<span class="r-in"><span><span class="fu">walkthrough_blocking</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">12</span>, diff <span class="op">=</span> <span class="fl">0.2</span>, sd <span class="op">=</span> <span class="fl">1.3</span>, rho <span class="op">=</span> <span class="fl">0.8</span>, pedant <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

@@ -27,12 +27,15 @@ Suggests:
     broom,
     broom.mixed,
     coin,
-    lme4
+    knitr,
+    lme4,
     MASS,
     mgcv,
     rlang,
+    rmarkdown,
     testthat,
     tidyverse
 Config/roxygen2/version: 8.0.0
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
+VignetteBuilder: knitr

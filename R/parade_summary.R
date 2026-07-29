@@ -54,7 +54,7 @@
 #' # or
 #' reveal(my_parade)
 
-parade_summary <- function(parade, predictors_only = FALSE) {
+parade_summary <- function(parade, predictors_only = TRUE) {
   # This function computes the mean residuals and fitted
   # values per cell for all samples in a parade. The cells
   # are defined as the unique combinations of values of

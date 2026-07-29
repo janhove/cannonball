@@ -226,3 +226,9 @@ paranoid](https://doi.org/10.31234/osf.io/zvawb). Preprint on PsyArxiv.
 - [`walkthrough_p()`](https://janhove.github.io/cannonball/reference/walkthrough_p.md)
   : Walkthrough p-values
 
+# Articles
+
+### All vignettes
+
+- [Graphically checking model
+  assumptions](https://janhove.github.io/cannonball/articles/check-assumptions.md):

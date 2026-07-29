@@ -5,17 +5,16 @@ Authors@R:
     person(given = "Jan",
            family = "Vanhove",
            role = c("aut", "cre"),
-           email = "janvanhove@gmail.com")
-Description: User-friendly functions for teaching introductory and intermediate statistics. Julian `Cannonball` Adderley is one of the author's favourite saxophonists and was a consummate jazz educator.
+           email = "janvanhove@gmail.com",
+           comment = c(ORCID = "0000-0002-4607-4836")
+    )
+Description: User-friendly functions for teaching introductory and intermediate statistics.
+URL: https://github.com/janhove/cannonball, https://janhove.github.io/cannonball/
+BugReports: https://github.com/janhove/cannonball/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 4.1.0)
-Suggests: 
-    testthat, tidyverse, coin, MASS, lme4, mgcv, broom, rlang, broom.mixed
-Config/roxygen2/version: 8.0.0
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 8.0.0
 Imports: 
     dplyr,
     ggplot2,
@@ -24,4 +23,16 @@ Imports:
     stats,
     tidyr,
     tidyselect
-URL: https://janhove.github.io/cannonball/
+Suggests:
+    broom,
+    broom.mixed,
+    coin,
+    lme4
+    MASS,
+    mgcv,
+    rlang,
+    testthat,
+    tidyverse
+Config/roxygen2/version: 8.0.0
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 8.0.0

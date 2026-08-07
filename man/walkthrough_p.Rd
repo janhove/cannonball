@@ -29,6 +29,8 @@ equal-sized groups. Data points in the intervention group receive a uniform boos
 as specified by \code{diff}. Finally, a significance test is run on the data.
 This significance test is a randomisation test using the mean difference as
 the test statistic. The p-value reported is a two-sided one.
+
+If \code{n} is larger than 9 and \code{M} is not specified, \code{M} is set to 48620.
 }
 \examples{
 \dontrun{

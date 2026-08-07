@@ -16,6 +16,8 @@
 #' This significance test is a randomisation test using the mean difference as
 #' the test statistic. The p-value reported is a two-sided one.
 #'
+#' If `n` is larger than 9 and `M` is not specified, `M` is set to 48620.
+#'
 #' @export
 #' @examples
 #' \dontrun{
@@ -27,6 +29,19 @@
 #' }
 
 walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, M = NULL) {
+  if (sd <= 0) {
+    stop(paste0("Set the 'sd' parameter to a value larger than 0. It's currently set to ", sd, "."))
+  }
+
+  if (n <= 1) {
+    stop(paste0("Set the 'n' parameter to a value larger than 1. It's currently set to ", n, "."))
+  }
+
+  if (n > 9 & is.null(M)) {
+    M <- 48620
+    message("Since n is quite large, Monte Carlo rather than exhaustive rerandomisation is used using M = 48620.")
+  }
+
   my_text <- paste0("You want to run a simple between-subjects two-group experiment to compare the efficacy of some intervention. Unbeknownst to you, the intervention yields a boost in performance of ", diff, " points relative to the control group. ",
                     n*2, " participants sign up for your study.")
   writeLines(strwrap(my_text, 60))
@@ -115,6 +130,11 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, M = NULL) 
                        exact = is.null(M),
                        M = M)[[3]]
   p_value <- round(p_value, 3)
+  p_percentage <- 100 * p_value
+  if (p_value == 0) {
+    p_value <- "<0.001"
+    p_percentage <- "<0.1%"
+  }
 
   p3 <- ggplot2::ggplot(df,
                         ggplot2::aes(x = score,
@@ -142,8 +162,8 @@ walkthrough_p <- function(n = 10, diff = 0, sd = 1, showdata = FALSE, M = NULL) 
                     "efficacy of the intervention were 0 for all units (= strong null hypothesis), ",
                     "your study still had a chance of finding ",
                     "a difference of ", abs(sample_difference), " points or more ",
-                    "of ", p_value*100, "%.\n\n",
-                    "What it DOESN'T mean is that the null hypothesis has a ", p_value*100, "% chance of being correct!")
+                    "of ", p_percentage, ".\n\n",
+                    "What it DOESN'T mean is that the null hypothesis has a ", p_percentage, " chance of being correct!")
   writeLines(strwrap(my_text, 60))
 
   writeLines(strwrap("\n\nRun this function again so see how randomness influences your results.", 60))

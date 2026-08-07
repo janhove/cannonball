@@ -1,6 +1,6 @@
 Package: cannonball
 Title: Tools for Teaching Statistics
-Version: 2026-07
+Version: 2026-08
 Authors@R: 
     person(given = "Jan",
            family = "Vanhove",

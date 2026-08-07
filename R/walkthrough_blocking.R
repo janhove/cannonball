@@ -20,6 +20,8 @@
 #' This significance test is a randomisation test using the mean difference as
 #' the test statistic. The p-value reported is a two-sided one.
 #'
+#' If `n` is larger than 16 and `M` is not specified, `M` is set to 65536.
+#'
 #' @export
 #' @examples
 #' \dontrun{
@@ -41,6 +43,11 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
 
   if (n <= 1) {
     stop(paste0("Set the 'n' parameter to a value larger than 1. It's currently set to ", n, "."))
+  }
+
+  if (n > 16 & is.null(M)) {
+    M <- 65536
+    message("Since n is quite large, Monte Carlo rather than exhaustive rerandomisation is used using M = 65536.")
   }
 
   my_text <- paste0("You want to run a between-subjects two-group experiment to compare the efficacy of some intervention. Unbeknownst to you, the intervention yields a boost in performance of ", diff, " points relative to the control method. ",
@@ -235,11 +242,19 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
                        statistic = mean_diff, plot = FALSE,
                        exact = is.null(M), M = M)[[3]]
   p_value <- round(p_value, 3)
+  p_percentage <- 100 * p_value
+  if (p_value == 0) {
+    p_value <- "<0.001"
+    p_percentage <- "<0.1%"
+  }
 
   wrong_p_value <- rand_test(df$score, treatment_idx, NULL,
                              statistic = mean_diff, plot = FALSE,
                              exact = FALSE, M = 10000)[[3]]
   wrong_p_value <- round(wrong_p_value, 3)
+  if (wrong_p_value == 0) {
+    wrong_p_value <- "<0.001"
+  }
 
   sample_difference <- mean(df$score[treatment_idx]) - mean(df$score[-treatment_idx])
   discrepancy <- abs(diff - sample_difference)
@@ -252,8 +267,8 @@ walkthrough_blocking <- function(n = 10, diff = 0, sd = 1, rho = 0.8, showdata =
       "If you run a randomisation test on these data while taking into account the blocking, the p-value is ", p_value, ".\n\n",
       "What this means is that EVEN IF the true efficacy of the intervention were 0 (= null hypothesis), ",
       "your study still had a chance of finding a difference of ",
-      abs(sample_difference), " points or more of ", p_value*100, "%.\n\n",
-      "What this DOESN'T mean is that there is a chance of ", p_value*100, "% that the null hypothesis is true.\n\n",
+      abs(sample_difference), " points or more of ", p_percentage, ".\n\n",
+      "What this DOESN'T mean is that there is a chance of ", p_percentage, " that the null hypothesis is true.\n\n",
       "Had you analysed these same data but without taking the 'blocks' into account, you would have ",
       "obtained an incorrect p-value of ", wrong_p_value, "."
   )

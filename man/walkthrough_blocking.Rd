@@ -41,6 +41,8 @@ Data points in the intervention group receive a boost
 as specified by 'diff'. Finally, a significance test is ran on the data.
 This significance test is a randomisation test using the mean difference as
 the test statistic. The p-value reported is a two-sided one.
+
+If \code{n} is larger than 16 and \code{M} is not specified, \code{M} is set to 65536.
 }
 \examples{
 \dontrun{

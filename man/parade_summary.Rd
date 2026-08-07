@@ -4,7 +4,7 @@
 \alias{parade_summary}
 \title{Summarise residual information in a diagnostic parade per cell or per unique predictor value}
 \usage{
-parade_summary(parade, predictors_only = FALSE)
+parade_summary(parade, predictors_only = TRUE)
 }
 \arguments{
 \item{parade}{The name of an object generated using the \code{parade()} function.}

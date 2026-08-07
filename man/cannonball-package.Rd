@@ -6,21 +6,23 @@
 \alias{cannonball-package}
 \title{cannonball: Tools for Teaching Statistics}
 \description{
-User-friendly functions for teaching introductory and intermediate statistics. Julian `Cannonball` Adderley is one of the author's favourite saxophonists and was a consummate jazz educator.
+User-friendly functions for teaching introductory and intermediate statistics.
 }
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://github.com/janhove/cannonball}
   \item \url{https://janhove.github.io/cannonball/}
+  \item Report bugs at \url{https://github.com/janhove/cannonball/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Jan Vanhove \email{janvanhove@gmail.com}
+\strong{Maintainer}: Jan Vanhove \email{janvanhove@gmail.com} (\href{https://orcid.org/0000-0002-4607-4836}{ORCID})
 
 Authors:
 \itemize{
-  \item Jan Vanhove \email{janvanhove@gmail.com}
+  \item Jan Vanhove \email{janvanhove@gmail.com} (\href{https://orcid.org/0000-0002-4607-4836}{ORCID})
 }
 
 }

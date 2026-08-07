@@ -1,0 +1,200 @@
+---
+title: "Simulating and analysing cluster-randomised designs"
+output:
+  rmarkdown::html_vignette:
+    fig_width: 7
+    fig_height: 5
+    fig_align: "center"
+    dev: svg
+vignette: >
+  %\VignetteIndexEntry{cluster-randomisation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The data from experiments in which entire clusters of participants 
+(e.g., classes) are assigned to the experimental conditions 
+can’t be analysed in the same way as data from experiments 
+in which the participants are assigned to the conditions individually. 
+The function `clustered_data()` generates data for a 
+cluster-randomised experiment and can be used to demonstrate the 
+increased Type-I error rate if such data are analysed using t-tests 
+on the individual outcomes.
+See [Vanhove (2015)](http://doi.org/10.14746/ssllt.2015.5.1.7)
+for an introduction geared towards applied linguists.
+
+## Simulating cluster-randomised data
+First load the package.
+```{r setup}
+library(cannonball)
+```
+
+The `n_per_class` parameter specifies the number of pupils in each simulated
+class. Half of the classes are assigned to the intervention condition and half 
+to the control condition.
+```{r}
+d <- clustered_data(
+  n_per_class <- c(17, 26, 14, 18, 19, 22, 17, 21),
+  ICC = 0.25,
+  effect = 0.3
+)
+d
+xtabs(~ class + condition, d)
+```
+
+I like to plot the outcomes of cluster-randomised experiments with a continuous
+outcome like so:
+
+```{r}
+library(ggplot2)
+ggplot(data = d,
+       aes(x = reorder(class, outcome, FUN = median),
+           y = outcome)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_point(shape = 1,
+             position = position_jitter(width = 0.2)) +
+  facet_wrap(~ condition, scales = "free_x") +
+  xlab("Class") +
+  ylab("Outcome")
+```
+
+Or like so:
+
+```{r}
+ggplot(data = d,
+       aes(x = reorder(class, outcome, FUN = median),
+           y = outcome)) +
+  geom_boxplot(
+    outlier.shape = NA,
+    mapping = aes(fill = condition)
+  ) +
+  geom_point(shape = 1,
+             position = position_jitter(width = 0.2)) +
+  xlab("Class") +
+  ylab("Outcome") +
+  theme(legend.position = "bottom")
+```
+
+If you want to generate data for a cluster-randomised design that includes
+a pretest, you can specify the desired population-level correlation
+between the pretest scores and the non-intervention posttest scores
+via the `rho_prepost` parameter:
+
+```{r}
+d <- clustered_data(
+  n_per_class <- c(17, 26, 14, 18, 19, 22, 17, 21),
+  ICC = 0.25,
+  effect = 0.3,
+  rho_prepost = 0.8
+)
+d
+```
+
+```{r}
+ggplot(
+  d,
+  aes(x = pretest, y = outcome,
+      colour = condition) 
+) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+See [Vanhove (2020)](https://doi.org/10.31234/osf.io/ef4zc) for more information
+on leveraging pretest scores (and covariates in general) when designing
+and analysing data from cluster-randomised designs.
+
+## Evaluating the Type-I error rate of naive analysis
+To drive the point home that the data from clustered-randomised designs
+can't ignore the clustered nature of the data, we can run a simulation
+that generates a couple of thousand such data sets and analyses them
+using a t-test on the pupils:
+```{r}
+class_n <- c(17, 26, 14, 18, 19, 22, 17, 21)
+ps <- replicate(
+  5000,
+  {
+    d <- clustered_data(n_per_class = class_n, ICC = 0.25, effect = 0)
+    t.test(outcome ~ condition, data = d, var.equal = TRUE)$p.value
+  }
+)
+```
+
+The Type-I error rate for these settings is over 40% as opposed to the 
+nominal 5% (when using $\alpha = 0.05$):
+```{r}
+data.frame(p = ps) |> 
+  ggplot(aes(x = ps)) +
+  geom_histogram(breaks = seq(0, 1, 0.05),
+                 colour = "black",
+                 mapping = aes(fill = ps < 0.05)) +
+  scale_fill_manual(values = c("#2b83ba", "#d7191c")) +
+  xlab("p-value") +
+  ylab("Frequency") +
+  ggtitle("Inflated Type-I error rate") +
+  theme(legend.position = "none")
+```
+
+## A correct analysis
+One possible way to analyse cluster-randomised data correctly is to
+average the outcomes per cluster and then just analyse these cluster averages.
+
+```{r}
+d <- clustered_data(
+  n_per_class <- c(17, 26, 14, 18, 19, 22, 17, 21),
+  ICC = 0.25,
+  effect = 0.3
+)
+d_per_class <- aggregate(d$outcome, 
+                         by = list(condition = d$condition, class = d$class), 
+                         mean)
+d_per_class
+```
+
+```{r}
+t.test(x ~ condition, d_per_class, var.equal = TRUE)
+```
+
+We can verify that this analysis is valid using a simulation:
+
+```{r}
+ps <- replicate(
+  5000,
+  {
+    d <- clustered_data(n_per_class = class_n, ICC = 0.25, effect = 0)
+    d_per_class <- aggregate(d$outcome, 
+      by = list(condition = d$condition, class = d$class), mean)
+    t.test(x ~ condition, data = d_per_class, var.equal = TRUE)$p.value
+  }
+)
+data.frame(p = ps) |> 
+  ggplot(aes(x = ps)) +
+  geom_histogram(breaks = seq(0, 1, 0.05),
+                 colour = "black",
+                 mapping = aes(fill = ps < 0.05)) +
+  scale_fill_manual(values = c("#2b83ba", "#d7191c")) +
+  xlab("p-value") +
+  ylab("Frequency") +
+  ggtitle("No Type-I error rate inflation") +
+  theme(legend.position = "none")
+```
+
+## References
+Vanhove, Jan. 
+2015. 
+[Analyzing randomized controlled interventions: Three notes for applied linguists.](http://doi.org/10.14746/ssllt.2015.5.1.7)
+_Studies in Second Language Learning and Teaching_ 5(1). 
+135–152. 
+(Also see the [correction note](http://pressto.amu.edu.pl/index.php/ssllt/article/view/5827/5895) for this article.)
+
+Vanhove, Jan.
+2020.
+[Capitalising on covariates in cluster-randomised experiments.](https://doi.org/10.31234/osf.io/ef4zc)
+_PsyArXiv Preprints_.

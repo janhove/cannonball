@@ -10,7 +10,7 @@
 #'              experiment. Covariate scores related to the outcome (referred to as pretest scores here)
 #'              can also be generated.
 #'
-#' @details This function works as follows. The within-cluster variance for the participants'
+#' @details The within-cluster variance for the participants'
 #'          latent pre-intervention skill is set to 1. The within-cluster variance is then computed
 #'          on the basis of the desired ICC. Then, pre- and posttest measurements are generated
 #'          by adding random normal measurement error to the participants' latent pre-intervention skill.
@@ -22,14 +22,14 @@
 #'          Finally, a constant intervention effect is added to the outcome scores of the participants
 #'          in the intervention condition.
 #'
-#'          Note that the square root of the product of the pre- and posttest reliabilities yields
-#'          the correlation between them. So if you want to have a correlation between pretest and posttest
-#'          scores (without an intervention effect) of 0.7 and you want your pretest to be correlated
-#'          at 0.9 to the pre-intervention latent skill levels (i.e., have a reliability of 0.9),
-#'          then solve \eqn{\sqrt{0.9x} = 0.7} for \eqn{x} (\eqn{x = 0.7^2/0.9 = 0.544}).
+#' The square root of the product of the pre- and posttest reliabilities yields
+#' the correlation between them. So if you want to have a correlation between pretest and posttest
+#' scores (without an intervention effect) of 0.7 and you want your pretest to be correlated
+#' at 0.9 to the pre-intervention latent skill levels (i.e., have a reliability of 0.9),
+#' then solve \eqn{\sqrt{0.9x} = 0.7} for \eqn{x} (\eqn{x = 0.7^2/0.9 = 0.544}).
 #'
-#' @param n_per_class       The number of participants per class. The first half of the classes are
-#'                          assigned to the control condition, the second half to the intervention condition.
+#' @param n_per_class       The number of participants per class. Half of the classes are randomly assigned to the
+#'                          intervention condition and half to the control.
 #' @param ICC               The intra-class correlation. An ICC of 1 means that the observations in each class are
 #'                          identical to each other; an ICC of 0 means that observations within the same class aren't
 #'                          any more alike than observations from different classes. Defaults to 0.15.
@@ -141,8 +141,8 @@ clustered_data <- function(n_per_class = rep(20, 10),
   # Generate cluster effects for latent skill without intervention
   Classes <- data.frame(
     class = factor(1:nr_classes),
-    condition = factor(c(rep("control", floor(nr_classes/2)),
-                         rep("intervention", ceiling(nr_classes/2)))),
+    condition = sample(factor(c(rep("control", floor(nr_classes/2)),
+                                rep("intervention", ceiling(nr_classes/2))))),
     class_effect = rnorm(n = nr_classes, sd = sqrt(var_between))
   )
 

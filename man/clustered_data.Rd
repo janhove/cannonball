@@ -14,8 +14,8 @@ clustered_data(
 )
 }
 \arguments{
-\item{n_per_class}{The number of participants per class. The first half of the classes are
-assigned to the control condition, the second half to the intervention condition.}
+\item{n_per_class}{The number of participants per class. Half of the classes are randomly assigned to the
+intervention condition and half to the control.}
 
 \item{ICC}{The intra-class correlation. An ICC of 1 means that the observations in each class are
 identical to each other; an ICC of 0 means that observations within the same class aren't
@@ -41,7 +41,7 @@ experiment. Covariate scores related to the outcome (referred to as pretest scor
 can also be generated.
 }
 \details{
-This function works as follows. The within-cluster variance for the participants'
+The within-cluster variance for the participants'
 latent pre-intervention skill is set to 1. The within-cluster variance is then computed
 on the basis of the desired ICC. Then, pre- and posttest measurements are generated
 by adding random normal measurement error to the participants' latent pre-intervention skill.
@@ -53,12 +53,11 @@ pretest and posttest reliabilities.
 Finally, a constant intervention effect is added to the outcome scores of the participants
 in the intervention condition.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{     Note that the square root of the product of the pre- and posttest reliabilities yields
-     the correlation between them. So if you want to have a correlation between pretest and posttest
-     scores (without an intervention effect) of 0.7 and you want your pretest to be correlated
-     at 0.9 to the pre-intervention latent skill levels (i.e., have a reliability of 0.9),
-     then solve \eqn{\sqrt{0.9x} = 0.7} for \eqn{x} (\eqn{x = 0.7^2/0.9 = 0.544}).
-}\if{html}{\out{</div>}}
+The square root of the product of the pre- and posttest reliabilities yields
+the correlation between them. So if you want to have a correlation between pretest and posttest
+scores (without an intervention effect) of 0.7 and you want your pretest to be correlated
+at 0.9 to the pre-intervention latent skill levels (i.e., have a reliability of 0.9),
+then solve \eqn{\sqrt{0.9x} = 0.7} for \eqn{x} (\eqn{x = 0.7^2/0.9 = 0.544}).
 }
 \examples{
 # Generate and plot data with ICC = 0

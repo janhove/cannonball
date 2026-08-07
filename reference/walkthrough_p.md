@@ -44,6 +44,8 @@ run on the data. This significance test is a randomisation test using
 the mean difference as the test statistic. The p-value reported is a
 two-sided one.
 
+If `n` is larger than 9 and `M` is not specified, `M` is set to 48620.
+
 ## Examples
 
 ``` r

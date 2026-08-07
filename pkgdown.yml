@@ -3,7 +3,7 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   check-assumptions: check-assumptions.html
-last_built: 2026-07-29T08:29Z
+last_built: 2026-08-07T08:10Z
 urls:
   reference: https://janhove.github.io/cannonball/reference
   article: https://janhove.github.io/cannonball/articles

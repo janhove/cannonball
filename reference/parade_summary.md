@@ -29,7 +29,7 @@ combination of predictor combinations.
 ## Usage
 
 ``` r
-parade_summary(parade, predictors_only = FALSE)
+parade_summary(parade, predictors_only = TRUE)
 ```
 
 ## Arguments

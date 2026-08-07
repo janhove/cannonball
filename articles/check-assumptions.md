@@ -1,6 +1,6 @@
 # Graphically checking model assumptions
 
-The `cannonball` package contains a handful of functinos that can help
+The `cannonball` package contains a handful of functions that can help
 you judge whether your data conform to the assumptions of the
 statistical model you’ve fitted. By embedding the model’s diagnostic
 plot in a line-up of diagnostic plots of simulated data for which the
@@ -8,7 +8,8 @@ model’s assumptions are literally met, you can more easily determine
 whether any blips in these plots are indicative of assumption violations
 or whether they can plausibly be accounted for by sampling error or
 noise. The idea for this stems from [Buja et
-al. (2009)](http://doi.org/10.1098/rsta.2009.0120); see [Vanhove
+al. (2009)](http://doi.org/10.1098/rsta.2009.0120) and is similar to
+posterior predictive checks in Bayesian statistics; see [Vanhove
 (2018)](https://doi.org/10.31234/osf.io/zvawb) for an accompanying
 article.
 
@@ -25,7 +26,7 @@ m <- lm(mpg ~ wt, data = mtcars)
 
 Using
 [`parade()`](https://janhove.github.io/cannonball/reference/parade.md),
-create a parade in which the real dataset is hidden between 19 other
+create a parade in which the real dataset is hidden among 19 other
 datasets generated from the model. For these other datasets, the model’s
 assumptions are literally met.
 
@@ -58,8 +59,11 @@ my_parade
 A handful of convenience functions are available for gauging how much
 the true dataset stands out from the simulated ones. For instance,
 [`lin_plot()`](https://janhove.github.io/cannonball/reference/diagnostic_plot.md)
-can be used to check if the linearity assumption is met: Which of the
-plots below looks most different from the rest?
+can be used to check if the linearity assumption is met. It plots the
+residuals against the fitted values; ideally, there should be no
+residual trend in the plot.
+
+Which of the plots below looks most different from the rest?
 
 ``` r
 
@@ -67,11 +71,13 @@ lin_plot(my_parade)
 #> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 ```
 
-![](check-assumptions_files/figure-html/unnamed-chunk-4-1.png) In
-nineteen of the above plots, the linearity assumption is literally met
-yet the scatterplot smoothers are all nonlinear to some extent. If the
-true relationship were linear, there should only be a one-in-twenty
-chance that the plot you picked is the one with the true data.
+![](check-assumptions_files/figure-html/unnamed-chunk-4-1.png)
+
+In nineteen of the above plots, the linearity assumption is literally
+met yet the scatterplot smoothers (LOESS fits in this case) are all
+nonlinear to some extent. If the true relationship were linear, there
+should only be a one-in-twenty chance that the plot you picked is the
+one with the true data.
 
 Using
 [`reveal()`](https://janhove.github.io/cannonball/reference/reveal.md),

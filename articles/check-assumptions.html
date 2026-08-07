@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cannonball</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2026-07</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2026-08</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,16 +64,16 @@
 
     
     
-<p>The <code>cannonball</code> package contains a handful of functinos
+<p>The <code>cannonball</code> package contains a handful of functions
 that can help you judge whether your data conform to the assumptions of
 the statistical model you’ve fitted. By embedding the model’s diagnostic
 plot in a line-up of diagnostic plots of simulated data for which the
 model’s assumptions are literally met, you can more easily determine
 whether any blips in these plots are indicative of assumption violations
 or whether they can plausibly be accounted for by sampling error or
-noise. The idea for this stems from <a href="http://doi.org/10.1098/rsta.2009.0120" class="external-link">Buja et al. (2009)</a>; see
-<a href="https://doi.org/10.31234/osf.io/zvawb" class="external-link">Vanhove (2018)</a> for
-an accompanying article.</p>
+noise. The idea for this stems from <a href="http://doi.org/10.1098/rsta.2009.0120" class="external-link">Buja et al. (2009)</a> and
+is similar to posterior predictive checks in Bayesian statistics; see <a href="https://doi.org/10.31234/osf.io/zvawb" class="external-link">Vanhove (2018)</a> for an
+accompanying article.</p>
 <div class="section level2">
 <h2 id="example-with-numeric-predictors">Example with numeric predictors<a class="anchor" aria-label="anchor" href="#example-with-numeric-predictors"></a>
 </h2>
@@ -83,8 +83,8 @@ an accompanying article.</p>
 <span></span>
 <span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">~</span> <span class="va">wt</span>, data <span class="op">=</span> <span class="va">mtcars</span><span class="op">)</span></span></code></pre></div>
 <p>Using <code><a href="../reference/parade.html">parade()</a></code>, create a parade in which the real
-dataset is hidden between 19 other datasets generated from the model.
-For these other datasets, the model’s assumptions are literally met.</p>
+dataset is hidden among 19 other datasets generated from the model. For
+these other datasets, the model’s assumptions are literally met.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_parade</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/parade.html">parade</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></code></pre></div>
 <p>The parade is itself a tibble/data frame:</p>
@@ -107,15 +107,18 @@ For these other datasets, the model’s assumptions are literally met.</p>
 <p>A handful of convenience functions are available for gauging how much
 the true dataset stands out from the simulated ones. For instance,
 <code><a href="../reference/diagnostic_plot.html">lin_plot()</a></code> can be used to check if the linearity assumption
-is met: Which of the plots below looks most different from the rest?</p>
+is met. It plots the residuals against the fitted values; ideally, there
+should be no residual trend in the plot.</p>
+<p>Which of the plots below looks most different from the rest?</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/diagnostic_plot.html">lin_plot</a></span><span class="op">(</span><span class="va">my_parade</span><span class="op">)</span></span>
 <span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span></code></pre></div>
-<p><img src="check-assumptions_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700">
-In nineteen of the above plots, the linearity assumption is literally
-met yet the scatterplot smoothers are all nonlinear to some extent. If
-the true relationship were linear, there should only be a one-in-twenty
-chance that the plot you picked is the one with the true data.</p>
+<p><img src="check-assumptions_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></p>
+<p>In nineteen of the above plots, the linearity assumption is literally
+met yet the scatterplot smoothers (LOESS fits in this case) are all
+nonlinear to some extent. If the true relationship were linear, there
+should only be a one-in-twenty chance that the plot you picked is the
+one with the true data.</p>
 <p>Using <code><a href="../reference/reveal.html">reveal()</a></code>, you can check your guess:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/reveal.html">reveal</a></span><span class="op">(</span><span class="va">my_parade</span><span class="op">)</span></span>

@@ -36,6 +36,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/check-assumptions.html">Graphically checking model assumptions</a></li>
+    <li><a class="dropdown-item" href="articles/cluster-randomisation.html">Simulating and analysing cluster-randomised designs</a></li>
   </ul>
 </li>
       </ul>
@@ -60,8 +61,7 @@
 </h2>
 <p>You can install cannonball from Github with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
-<span><span class="fu">install_github</span><span class="op">(</span><span class="st">"janhove/cannonball"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"janhove/cannonball"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
@@ -76,7 +76,7 @@
 <p>A single correlation coefficient can correspond to any number of scatterplots. <code><a href="reference/plot_r.html">plot_r()</a></code> produces 16 such scatterplots for any given Pearson correlation coefficient to drive this point home.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_r.html">plot_r</a></span><span class="op">(</span>r <span class="op">=</span> <span class="fl">0.5</span>, n <span class="op">=</span> <span class="fl">35</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-example-1.png" width="100%"></p>
+<p><img src="reference/figures/README-example-1.svg" alt="" width="100%"></p>
 <p>For more info, see <code><a href="reference/plot_r.html">?plot_r</a></code>.</p>
 <p>Accompanying blog post: <a href="https://janhove.github.io/posts/2016-11-21-what-correlations-look-like/" class="external-link"><em>What data patterns can lie behind a correlation coefficient?</em></a></p>
 </div>
@@ -84,83 +84,26 @@
 <h3 id="walkthroughs">Walkthroughs<a class="anchor" aria-label="anchor" href="#walkthroughs"></a>
 </h3>
 <p>To help students see the connection between an experiment’s design and its analysis, I’ve written two functions.</p>
-<p><code><a href="reference/walkthrough_p.html">walkthrough_p()</a></code> guides the user through a completely randomised experiment: Data points are generated and randomly assigned to either the control or intervention condition. Then, the intervention effect is added to the data points in the intervention condition. Finally, the data are analysed using a Student’s t-test or, if <code>pedant = TRUE</code>, a permutation test.</p>
+<p><code><a href="reference/walkthrough_p.html">walkthrough_p()</a></code> guides the user through a completely randomised experiment: Data points are generated and randomly assigned to either the control or intervention condition. Then, the intervention effect is added to the data points in the intervention condition. Finally, the data are analysed using a randomisation test.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># see ?walkthrough_p</span></span>
-<span><span class="fu"><a href="reference/walkthrough_p.html">walkthrough_p</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">18</span>, diff <span class="op">=</span> <span class="fl">0.3</span>, sd <span class="op">=</span> <span class="fl">1</span>, pedant <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/walkthrough_p.html">walkthrough_p</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">18</span>, diff <span class="op">=</span> <span class="fl">0.3</span>, sd <span class="op">=</span> <span class="fl">1</span>,<span class="op">)</span></span></code></pre></div>
 <p><code><a href="reference/walkthrough_blocking.html">walkthrough_blocking()</a></code> works similarly to <code><a href="reference/walkthrough_p.html">walkthrough_p()</a></code> but describes a randomised block design: Prior information about the data points is available in the form of a covariate (e.g., a pretest score). This information is used to group participants into ‘blocks’, and the randomisation is restricted in that one participant per block is assigned to the control and one to the intervention condition. Crucially, the analysis needs to take this restricted randomisation into account.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ?walkthrough_blocking</span></span>
 <span><span class="fu"><a href="reference/walkthrough_blocking.html">walkthrough_blocking</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">12</span>, diff <span class="op">=</span> <span class="fl">0.4</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p>An alternative, more powerful, but less easily explained analysis would use the blocking <em>covariate</em> as a control variable in a general linear model rather than the blocking <em>factor</em>.</p>
 </div>
 <div class="section level3">
-<h3 id="simulate-data-for-cluster-randomised-experiment">Simulate data for cluster-randomised experiment<a class="anchor" aria-label="anchor" href="#simulate-data-for-cluster-randomised-experiment"></a>
+<h3 id="simulate-data-and-analysed-cluster-randomised-data">Simulate data and analysed cluster-randomised data<a class="anchor" aria-label="anchor" href="#simulate-data-and-analysed-cluster-randomised-data"></a>
 </h3>
 <p>The data from experiments in which entire clusters of participants (e.g., classes) are assigned to the experimental conditions can’t be analysed in the same way as data from experiments in which the participants are assigned to the conditions individually. <code><a href="reference/clustered_data.html">clustered_data()</a></code> generates data for a cluster-randomised experiment and can be used to demonstrate the increased Type-I error rate if such data are analysed using t-tests on the individual outcomes.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Simulate clustered data with an ICC of 0.3</span></span>
-<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/clustered_data.html">clustered_data</a></span><span class="op">(</span>ICC <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Plot</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">d</span>,</span>
-<span>       <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">class</span>, <span class="va">outcome</span>, FUN <span class="op">=</span> <span class="va">median</span><span class="op">)</span>,</span>
-<span>           y <span class="op">=</span> <span class="va">outcome</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span>outlier.shape <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>             position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_jitter.html" class="external-link">position_jitter</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.1</span>, height <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">condition</span>, scales <span class="op">=</span> <span class="st">"free_x"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"class"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
-<p>A covariate can also be created. For more info, see <code><a href="reference/clustered_data.html">?clustered_data</a></code>.</p>
-<p>Accompanying article: Vanhove, Jan. 2015. <a href="http://doi.org/10.14746/ssllt.2015.5.1.7" class="external-link">Analyzing randomized controlled interventions: Three notes for applied linguists</a>. <em>Studies in Second Language Learning and Teaching</em> 5(1). 135–152. (See the <a href="http://pressto.amu.edu.pl/index.php/ssllt/article/view/5827/5895" class="external-link">correction note</a> for this paper.)</p>
-<p>Accompanying blog post: <a href="https://janhove.github.io/posts/2016-02-16-cluster-randomisation-correction/" class="external-link"><em>Experiments with intact groups: spurious significance with improperly weighted t-tests</em></a>.</p>
+<p>Refer to the vignette (article) <code><a href="articles/cluster-randomisation.html">vignette("cluster-randomisation", package = "cannonball")</a></code> for details.</p>
 </div>
 <div class="section level3">
 <h3 id="check-model-assumptions-graphically">Check model assumptions graphically<a class="anchor" aria-label="anchor" href="#check-model-assumptions-graphically"></a>
 </h3>
-<p>These functions may be helpful for helping you to judge whether your data conform to the assumptions of your statistical model. By embedding the model’s diagnostic plot in a line-up of diagnostic plots of simulated data for which the model’s assumptions are literally met, analysts can more easily determine whether any blips in these plots are indicative of assumption violations or whether they can plausibly be accounted for by sampling error/noise. See <a href="http://doi.org/10.1098/rsta.2009.0120" class="external-link">Buja et al. (2009)</a>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Fit model</span></span>
-<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">~</span> <span class="va">wt</span>, data <span class="op">=</span> <span class="va">mtcars</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create parade/line-up</span></span>
-<span><span class="va">my_parade</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/parade.html">parade</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: tidyverse</span></span>
-<span><span class="co">#&gt; ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──</span></span>
-<span><span class="co">#&gt; ✔ dplyr     1.1.4     ✔ readr     2.1.5</span></span>
-<span><span class="co">#&gt; ✔ forcats   1.0.0     ✔ stringr   1.5.1</span></span>
-<span><span class="co">#&gt; ✔ lubridate 1.9.3     ✔ tibble    3.2.1</span></span>
-<span><span class="co">#&gt; ✔ purrr     1.0.2     ✔ tidyr     1.3.1</span></span>
-<span><span class="co">#&gt; ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
-<span><span class="co">#&gt; ✖ dplyr::filter() masks stats::filter()</span></span>
-<span><span class="co">#&gt; ✖ dplyr::lag()    masks stats::lag()</span></span>
-<span><span class="co">#&gt; ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Check for residual nonlinearities:</span></span>
-<span><span class="co"># Which plot looks most different from the rest?</span></span>
-<span><span class="fu"><a href="reference/diagnostic_plot.html">lin_plot</a></span><span class="op">(</span><span class="va">my_parade</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Reveal position of actual diagnostic plot</span></span>
-<span><span class="fu"><a href="reference/reveal.html">reveal</a></span><span class="op">(</span><span class="va">my_parade</span><span class="op">)</span></span>
-<span><span class="co">#&gt; The true data are in position 14.</span></span></code></pre></div>
-<p>Related functions are:</p>
-<ul>
-<li>
-<code><a href="reference/diagnostic_plot.html">var_plot()</a></code>: Check for non-constant variance in the residuals.</li>
-<li>
-<code><a href="reference/diagnostic_plot.html">norm_qq()</a></code>: Check for non-normality of the residuals (quantile–quantile plot).</li>
-<li>
-<code><a href="reference/diagnostic_plot.html">norm_hist()</a></code>: Check for non-normality of the residuals (histogram).</li>
-<li>
-<code><a href="reference/parade_summary.html">parade_summary()</a></code>: Summarise residuals per cell (combination of unique predictor values).</li>
-</ul>
-<p>Accompanying article: Vanhove, Jan. 2018. <a href="https://doi.org/10.31234/osf.io/zvawb" class="external-link">Checking the assumptions of your statistical model without getting paranoid</a>. Preprint on PsyArxiv.</p>
+<p>These functions may be helpful for helping you to judge whether your data conform to the assumptions of your statistical model. By embedding the model’s diagnostic plot in a line-up of diagnostic plots of simulated data for which the model’s assumptions are literally met, analysts can more easily determine whether any blips in these plots are indicative of assumption violations or whether they can plausibly be accounted for by sampling error/noise.</p>
+<p>Refer to the vignette (article) <code><a href="articles/check-assumptions.html">vignette("check-assumptions", package = "cannonball")</a></code> for details.</p>
 </div>
 </div>
 </div>

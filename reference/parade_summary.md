@@ -72,8 +72,8 @@ var_plot(my_sum_parade)
 
 
 reveal(my_sum_parade)
-#> The true data are in position 6.
+#> The true data are in position 14.
 # or
 reveal(my_parade)
-#> The true data are in position 6.
+#> The true data are in position 14.
 ```

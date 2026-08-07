@@ -102,12 +102,12 @@ rand_test(learners$Outcome, which(learners$Condition == 1),
           statistic = mean_diff)
 
 #> $`left-sided p-value`
-#> [1] 0.9932984
+#> [1] 0.9796037
 #> 
 #> $`right-sided p-value`
-#> [1] 0.01748252
+#> [1] 0.03700466
 #> 
 #> $`two-sided p-value`
-#> [1] 0.03496503
+#> [1] 0.07400932
 #> 
 ```

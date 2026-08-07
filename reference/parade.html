@@ -31,6 +31,7 @@ panels of diagnostic plots (see examples)."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/check-assumptions.html">Graphically checking model assumptions</a></li>
+    <li><a class="dropdown-item" href="../articles/cluster-randomisation.html">Simulating and analysing cluster-randomised designs</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -110,24 +111,24 @@ cannot handle model calls with <code><a href="https://rdrr.io/r/stats/poly.html"
 <span class="r-in"><span><span class="va">my_parade</span> <span class="op">&lt;-</span> <span class="fu">parade</span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">my_parade</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 640 × 7</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     disp   mpg .fitted  .resid .abs_resid .sqrt_abs_resid .sample</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>  160   24.9    23.3  1.64       1.64             1.28        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>  160   19.6    23.3 -<span style="color: #BB0000;">3.71</span>       3.71             1.93        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>  108   29.7    25.5  4.22       4.22             2.05        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>  258   18.6    19.1 -<span style="color: #BB0000;">0.485</span>      0.485            0.696       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>  360   13.9    14.7 -<span style="color: #BB0000;">0.770</span>      0.770            0.877       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>  225   22.6    20.5  2.10       2.10             1.45        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>  360   14.6    14.7 -<span style="color: #BB0000;">0.098</span><span style="color: #BB0000; text-decoration: underline;">9</span>     0.098<span style="text-decoration: underline;">9</span>           0.315       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>  147.  22.9    23.9 -<span style="color: #BB0000;">0.949</span>      0.949            0.974       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>  141.  21.7    24.1 -<span style="color: #BB0000;">2.44</span>       2.44             1.56        1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>  168.  18.6    23.0 -<span style="color: #BB0000;">4.40</span>       4.40             2.10        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     disp   mpg .fitted .resid .abs_resid .sqrt_abs_resid .sample</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>  160  19.2     21.9 -<span style="color: #BB0000;">2.69</span>       2.69            1.64        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>  160  21.5     21.9 -<span style="color: #BB0000;">0.394</span>      0.394           0.627       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>  108  23.8     24.1 -<span style="color: #BB0000;">0.363</span>      0.363           0.602       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>  258  20.5     17.8  2.77       2.77            1.66        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>  360  12.5     13.4 -<span style="color: #BB0000;">0.959</span>      0.959           0.979       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>  225  21.6     19.2  2.41       2.41            1.55        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>  360   9.97    13.4 -<span style="color: #BB0000;">3.44</span>       3.44            1.85        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>  147. 22.7     22.5  0.247      0.247           0.497       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>  141. 27.5     22.7  4.72       4.72            2.17        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>  168. 21.2     21.6 -<span style="color: #BB0000;">0.415</span>      0.415           0.645       1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 630 more rows</span></span>
 <span class="r-in"><span><span class="fu"><a href="diagnostic_plot.html">lin_plot</a></span><span class="op">(</span><span class="va">my_parade</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span>
 <span class="r-plt img"><img src="parade-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="reveal.html">reveal</a></span><span class="op">(</span><span class="va">my_parade</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The true data are in position 5.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The true data are in position 2.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Regenerate parade and check constant variance</span></span></span>
 <span class="r-in"><span><span class="va">my_parade</span> <span class="op">&lt;-</span> <span class="fu">parade</span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
@@ -135,7 +136,7 @@ cannot handle model calls with <code><a href="https://rdrr.io/r/stats/poly.html"
 <span class="r-msg co"><span class="r-pr">#&gt;</span> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span>
 <span class="r-plt img"><img src="parade-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="reveal.html">reveal</a></span><span class="op">(</span><span class="va">my_parade</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The true data are in position 20.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The true data are in position 1.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Regenerate parade and check normality</span></span></span>
 <span class="r-in"><span><span class="va">my_parade</span> <span class="op">&lt;-</span> <span class="fu">parade</span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
@@ -146,7 +147,7 @@ cannot handle model calls with <code><a href="https://rdrr.io/r/stats/poly.html"
 <span class="r-in"><span><span class="fu"><a href="diagnostic_plot.html">norm_hist</a></span><span class="op">(</span><span class="va">my_parade</span>, bins <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="parade-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="reveal.html">reveal</a></span><span class="op">(</span><span class="va">my_parade</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The true data are in position 1.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The true data are in position 19.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># If you want to include all predictors in the dataset in the parade:</span></span></span>
 <span class="r-in"><span><span class="va">my_parade</span> <span class="op">&lt;-</span> <span class="fu">parade</span><span class="op">(</span><span class="va">m</span>, full_data <span class="op">=</span> <span class="va">mtcars</span><span class="op">)</span></span></span>
@@ -154,16 +155,16 @@ cannot handle model calls with <code><a href="https://rdrr.io/r/stats/poly.html"
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 640 × 16</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb   mpg .fitted</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>     6  160    110  3.9   2.62  16.5     0     1     4     4 16.8     22.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>     6  160    110  3.9   2.88  17.0     0     1     4     4 14.4     22.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>     4  108     93  3.85  2.32  18.6     1     1     4     1 26.6     24.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>     6  258    110  3.08  3.22  19.4     1     0     3     1 13.8     18.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>     8  360    175  3.15  3.44  17.0     0     0     3     2  8.69    14.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>     6  225    105  2.76  3.46  20.2     1     0     3     1 17.9     19.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>     8  360    245  3.21  3.57  15.8     0     0     3     4 21.9     14.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>     4  147.    62  3.69  3.19  20       1     0     4     2 17.4     22.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>     4  141.    95  3.92  3.15  22.9     1     0     4     2 17.6     22.7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>     6  168.   123  3.92  3.44  18.3     1     0     4     4 24.1     21.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>     6  160    110  3.9   2.62  16.5     0     1     4     4  22.9    23.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>     6  160    110  3.9   2.88  17.0     0     1     4     4  26.5    23.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>     4  108     93  3.85  2.32  18.6     1     1     4     1  24.9    26.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>     6  258    110  3.08  3.22  19.4     1     0     3     1  24.8    19.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>     8  360    175  3.15  3.44  17.0     0     0     3     2  13.8    14.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>     6  225    105  2.76  3.46  20.2     1     0     3     1  24.4    20.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>     8  360    245  3.21  3.57  15.8     0     0     3     4  14.1    14.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>     4  147.    62  3.69  3.19  20       1     0     4     2  27.9    24.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>     4  141.    95  3.92  3.15  22.9     1     0     4     2  21.1    24.6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>     6  168.   123  3.92  3.44  18.3     1     0     4     4  20.7    23.4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 630 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: .resid &lt;dbl&gt;, .abs_resid &lt;dbl&gt;, .sqrt_abs_resid &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   .sample &lt;int&gt;</span></span>

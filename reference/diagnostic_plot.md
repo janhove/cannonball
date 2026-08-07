@@ -73,7 +73,7 @@ lin_plot(my_parade)
 #> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 
 reveal(my_parade)
-#> The true data are in position 8.
+#> The true data are in position 1.
 
 # Regenerate parade and check constant variance
 my_parade <- parade(m)
@@ -81,7 +81,7 @@ var_plot(my_parade)
 #> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 
 reveal(my_parade)
-#> The true data are in position 4.
+#> The true data are in position 15.
 
 # Regenerate parade and check normality
 my_parade <- parade(m)
@@ -92,7 +92,7 @@ norm_hist(my_parade)
 norm_hist(my_parade, bins = 10)
 
 reveal(my_parade)
-#> The true data are in position 16.
+#> The true data are in position 12.
 
 # Example with gam
 library(mgcv)

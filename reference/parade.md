@@ -70,24 +70,24 @@ m <- lm(mpg ~ disp, data = mtcars)
 my_parade <- parade(m)
 my_parade
 #> # A tibble: 640 × 7
-#>     disp   mpg .fitted  .resid .abs_resid .sqrt_abs_resid .sample
-#>    <dbl> <dbl>   <dbl>   <dbl>      <dbl>           <dbl>   <int>
-#>  1  160   24.9    23.3  1.64       1.64             1.28        1
-#>  2  160   19.6    23.3 -3.71       3.71             1.93        1
-#>  3  108   29.7    25.5  4.22       4.22             2.05        1
-#>  4  258   18.6    19.1 -0.485      0.485            0.696       1
-#>  5  360   13.9    14.7 -0.770      0.770            0.877       1
-#>  6  225   22.6    20.5  2.10       2.10             1.45        1
-#>  7  360   14.6    14.7 -0.0989     0.0989           0.315       1
-#>  8  147.  22.9    23.9 -0.949      0.949            0.974       1
-#>  9  141.  21.7    24.1 -2.44       2.44             1.56        1
-#> 10  168.  18.6    23.0 -4.40       4.40             2.10        1
+#>     disp   mpg .fitted .resid .abs_resid .sqrt_abs_resid .sample
+#>    <dbl> <dbl>   <dbl>  <dbl>      <dbl>           <dbl>   <int>
+#>  1  160  19.2     21.9 -2.69       2.69            1.64        1
+#>  2  160  21.5     21.9 -0.394      0.394           0.627       1
+#>  3  108  23.8     24.1 -0.363      0.363           0.602       1
+#>  4  258  20.5     17.8  2.77       2.77            1.66        1
+#>  5  360  12.5     13.4 -0.959      0.959           0.979       1
+#>  6  225  21.6     19.2  2.41       2.41            1.55        1
+#>  7  360   9.97    13.4 -3.44       3.44            1.85        1
+#>  8  147. 22.7     22.5  0.247      0.247           0.497       1
+#>  9  141. 27.5     22.7  4.72       4.72            2.17        1
+#> 10  168. 21.2     21.6 -0.415      0.415           0.645       1
 #> # ℹ 630 more rows
 lin_plot(my_parade)
 #> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 
 reveal(my_parade)
-#> The true data are in position 5.
+#> The true data are in position 2.
 
 # Regenerate parade and check constant variance
 my_parade <- parade(m)
@@ -95,7 +95,7 @@ var_plot(my_parade)
 #> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 
 reveal(my_parade)
-#> The true data are in position 20.
+#> The true data are in position 1.
 
 # Regenerate parade and check normality
 my_parade <- parade(m)
@@ -106,7 +106,7 @@ norm_hist(my_parade)
 norm_hist(my_parade, bins = 10)
 
 reveal(my_parade)
-#> The true data are in position 1.
+#> The true data are in position 19.
 
 # If you want to include all predictors in the dataset in the parade:
 my_parade <- parade(m, full_data = mtcars)
@@ -114,16 +114,16 @@ my_parade
 #> # A tibble: 640 × 16
 #>      cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb   mpg .fitted
 #>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>   <dbl>
-#>  1     6  160    110  3.9   2.62  16.5     0     1     4     4 16.8     22.0
-#>  2     6  160    110  3.9   2.88  17.0     0     1     4     4 14.4     22.0
-#>  3     4  108     93  3.85  2.32  18.6     1     1     4     1 26.6     24.0
-#>  4     6  258    110  3.08  3.22  19.4     1     0     3     1 13.8     18.2
-#>  5     8  360    175  3.15  3.44  17.0     0     0     3     2  8.69    14.2
-#>  6     6  225    105  2.76  3.46  20.2     1     0     3     1 17.9     19.5
-#>  7     8  360    245  3.21  3.57  15.8     0     0     3     4 21.9     14.2
-#>  8     4  147.    62  3.69  3.19  20       1     0     4     2 17.4     22.5
-#>  9     4  141.    95  3.92  3.15  22.9     1     0     4     2 17.6     22.7
-#> 10     6  168.   123  3.92  3.44  18.3     1     0     4     4 24.1     21.7
+#>  1     6  160    110  3.9   2.62  16.5     0     1     4     4  22.9    23.7
+#>  2     6  160    110  3.9   2.88  17.0     0     1     4     4  26.5    23.7
+#>  3     4  108     93  3.85  2.32  18.6     1     1     4     1  24.9    26.0
+#>  4     6  258    110  3.08  3.22  19.4     1     0     3     1  24.8    19.3
+#>  5     8  360    175  3.15  3.44  17.0     0     0     3     2  13.8    14.8
+#>  6     6  225    105  2.76  3.46  20.2     1     0     3     1  24.4    20.8
+#>  7     8  360    245  3.21  3.57  15.8     0     0     3     4  14.1    14.8
+#>  8     4  147.    62  3.69  3.19  20       1     0     4     2  27.9    24.3
+#>  9     4  141.    95  3.92  3.15  22.9     1     0     4     2  21.1    24.6
+#> 10     6  168.   123  3.92  3.44  18.3     1     0     4     4  20.7    23.4
 #> # ℹ 630 more rows
 #> # ℹ 4 more variables: .resid <dbl>, .abs_resid <dbl>, .sqrt_abs_resid <dbl>,
 #> #   .sample <int>

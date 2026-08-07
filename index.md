@@ -105,3 +105,13 @@ accounted for by sampling error/noise.
 Refer to the vignette (article)
 [`vignette("check-assumptions", package = "cannonball")`](https://janhove.github.io/cannonball/articles/check-assumptions.md)
 for details.
+
+### Randomisation testing
+
+When explaining p-values, I like to use randomisation tests rather than
+t-tests or F-tests or what-have-you as their assumptions are easier to
+verify and you don’t need a lot of maths to run them.
+
+Refer to the vignette (article)
+[`vignette("randomisation-tests", package = "cannonball")`](https://janhove.github.io/cannonball/articles/randomisation-tests.md)
+for details.

@@ -37,6 +37,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/check-assumptions.html">Graphically checking model assumptions</a></li>
     <li><a class="dropdown-item" href="articles/cluster-randomisation.html">Simulating and analysing cluster-randomised designs</a></li>
+    <li><a class="dropdown-item" href="articles/randomisation-tests.html">Randomisation testing</a></li>
   </ul>
 </li>
       </ul>
@@ -104,6 +105,12 @@
 </h3>
 <p>These functions may be helpful for helping you to judge whether your data conform to the assumptions of your statistical model. By embedding the model’s diagnostic plot in a line-up of diagnostic plots of simulated data for which the model’s assumptions are literally met, analysts can more easily determine whether any blips in these plots are indicative of assumption violations or whether they can plausibly be accounted for by sampling error/noise.</p>
 <p>Refer to the vignette (article) <code><a href="articles/check-assumptions.html">vignette("check-assumptions", package = "cannonball")</a></code> for details.</p>
+</div>
+<div class="section level3">
+<h3 id="randomisation-testing">Randomisation testing<a class="anchor" aria-label="anchor" href="#randomisation-testing"></a>
+</h3>
+<p>When explaining p-values, I like to use randomisation tests rather than t-tests or F-tests or what-have-you as their assumptions are easier to verify and you don’t need a lot of maths to run them.</p>
+<p>Refer to the vignette (article) <code><a href="articles/randomisation-tests.html">vignette("randomisation-tests", package = "cannonball")</a></code> for details.</p>
 </div>
 </div>
 </div>
